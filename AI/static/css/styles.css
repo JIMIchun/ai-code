@@ -1,0 +1,127 @@
+/* 基本布局 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* 保证容器居中 */
+    height: 100vh;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 对话框容器 */
+.container {
+    width: 100%;
+    max-width: 800px;
+    height: calc(100vh - 80px);  /* 留出输入框的位置 */
+    padding: 20px;
+    background-color: #2a2d35;
+    border-radius: 10px;
+    overflow-y: auto;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* 使消息容器居中 */
+}
+
+/* 思考内容的框样式 */
+.think-box {
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-style: italic;
+    color: #333;
+    width: 95%;  /* 确保其占满容器宽度 */
+    text-align: justify;  /* 文字居中 */
+}
+
+/* 用户消息和机器人消息样式 */
+.user {
+    text-align: justify;  /* 使用户消息居中 */
+    background-color: #4e75b9;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    width: fit-content;  /* 宽度自适应内容 */
+    max-width: 80%;  /* 限制消息的最大宽度 */
+}
+
+.bot {
+    text-align: justify;  /* 使机器人消息居中 */
+    background-color: #2f855a;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    width: fit-content;  /* 宽度自适应内容 */
+    max-width: 80%;  /* 限制消息的最大宽度 */
+}
+
+/* 输入框样式 */
+.input-area {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #1e1e1e;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* 确保输入框在最上面 */
+}
+
+/* 输入框 */
+#inputText {
+    width: 80%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 发送按钮 */
+button {
+    width: 15%;
+    padding: 12px;
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* 按钮悬停效果 */
+button:hover {
+    background-color: #0099cc;
+}
+
+/* 样式美化 */
+h1 {
+    color: #00aaff;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* 对话框内容区域 */
+#conversationBox {
+    margin-bottom: 80px; /* 为固定的输入框留出空间 */
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 80vh; /* 限制对话框的高度 */
+    box-sizing: border-box;
+    width: 100%;
+}

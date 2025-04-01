@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMRIS 互动前端界面</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>IMRIS 互动模型-菜就多学版</h1>
+        <div id="conversationBox"></div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="inputText" placeholder="在这里输入..." />
+        <button onclick="sendInput()">发送</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
