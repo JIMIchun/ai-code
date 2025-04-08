@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import json
 import PyPDF2
+import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)   #允许所有来源的跨域请求
 
 # 模拟缓存对话历史（实际应用中可以用数据库或缓存系统）
 conversation_history = []
@@ -31,7 +34,7 @@ def load_default_pdf_content(pdf_path):
 def send_message(messages):
     url = "http://localhost:11434/api/chat"  # 模型的 API 地址
     payload = {
-        "model": "deepseek-r1:14b",
+        "model": "deepseek-r1:7b",
         "messages": messages
     }
     try:
@@ -57,10 +60,12 @@ def extract_content(parsed_response):
 def home():
     return render_template('index.html')  # 渲染前端 HTML
 
+
+# 接收前端发送的输入，并返回模型的回答
 @app.route('/send_input', methods=['POST'])
 def send_input():
     user_input = request.form['input_text']  # 获取前端传来的数据
-    print(f"用户输入: {user_input}")  # 打印用户输入，确保接收正确
+    print(f"用户输入: {user_input}，时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")  # 打印用户输入，确保接收正确
 
     # 加载 PDF 内容
     pdf_path = "knowledge.pdf"
@@ -69,11 +74,11 @@ def send_input():
     # 清空对话历史（确保每次请求都是从新的上下文开始）
     conversation_history.clear()
 
-    # 添加系统身份设定和参考资料
+    # TODO：添加系统身份设定和参考资料
 
-    conversation_history.append(
-        {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
-    )
+    # conversation_history.append(
+    #     {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
+    # )
     conversation_history.append(
         {"role": "system", "content": "你是IMRIS所开发的智能医学助手VV，擅长医学诊断和治疗分析。"}
     )
