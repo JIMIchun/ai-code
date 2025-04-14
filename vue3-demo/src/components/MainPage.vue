@@ -17,20 +17,17 @@
                         </el-icon>
                     </div>
                     <div class="right">
-                        <el-icon class="button" title="New chat" @click="newChat()">
-                            <Edit />
-                        </el-icon>
-                        <el-icon class="button" title="Notification">
+                        <el-icon class="button" title="通知">
                             <BellFilled />
                         </el-icon>
-                    </div>
-                    <!-- <template>
-                        <el-select v-model="selectModel" filterable placeholder="Select a model">
-                            <el-option v-for="item in modelList" :key="item.value" :label="item.label"
-                                :value="item.value">
-                            </el-option>
+                        <el-icon class="button">
+                            <UserFilled />
+                        </el-icon>
+                        <el-select v-model="selectAccount" filterable placeholder="选择账号" style="width: 150px">
+                            <el-option v-for="item in accountList" :key="item.patient_id" :label="item.name"
+                                :value="item.patient_id" />
                         </el-select>
-                    </template> -->
+                    </div>
                 </div>
             </el-header>
             <el-main>
@@ -42,13 +39,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCurrentInstance } from 'vue';
+const { proxy } = getCurrentInstance();   //获取上下文
 
 const router = useRouter();
 
 const isShowSidebar = ref(false);
 const selectModel = ref('IMRIS');
+const selectAccount = ref('');
+const accountList = ref([]);
 
 // const modelList = [
 //     {
@@ -61,6 +62,10 @@ const menuButtonList = [
     { title: 'New chat', icon: 'el-icon-edit', click: 'newChat' },
     { title: 'Workspace', icon: 'el-icon-menu', click: 'openWorkspace' },
 ];
+
+onMounted(() => {
+    queryAllPatientData();
+});
 
 const handleSidebarShow = () => {
     isShowSidebar.value = !isShowSidebar.value;
@@ -80,10 +85,9 @@ const MenuClick = (menu) => {
     }
 };
 
-const newChat = () => {
-    console.log('New chat!');
-};
-
+// const newChat = () => {
+//     console.log('New chat!');
+// };
 // const openWorkspace = () => {
 //     console.log('Open workspace!');
 // };
@@ -92,6 +96,20 @@ const sendMessage = (params) => {
     console.log('Send message:', params);
     router.push({ path: '/chat', query: params });
 };
+
+
+// 查询所有患者数据
+const queryAllPatientData = async () => {
+    proxy.$axios.get('/patients').then((res) => {
+        accountList.value = res.data;
+        selectAccount.value = res.data[0].patient_id;
+        console.log('All patient data:', accountList.value);
+    })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
 </script>
 
 <style scoped>
@@ -150,5 +168,10 @@ const sendMessage = (params) => {
 
 .top-bar .left .menu-icon {
     margin-right: 10px;
+}
+
+.top-bar>.right {
+    display: flex;
+    align-items: center;
 }
 </style>

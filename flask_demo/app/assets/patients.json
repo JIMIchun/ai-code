@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Alice",
+        "gender": "female",
+        "age": 25,
+        "contact": "13800138000",
+        "address": "Beijing"
+    },
+    {
+        "name": "Bob",
+        "gender": "male",
+        "age": 30,
+        "contact": "13900139000",
+        "address": "Shanghai"
+    },
+    {
+        "name": "Charlie",
+        "gender": "male",
+        "age": 28,
+        "contact": "13700137000",
+        "address": "Guangzhou"
+    },
+    {
+        "name": "Diana",
+        "gender": "female",
+        "age": 22,
+        "contact": "13600136000",
+        "address": "Shenzhen"
+    },
+    {
+        "name": "Eve",
+        "gender": "female",
+        "age": 27,
+        "contact": "13500135000",
+        "address": "Hangzhou"
+    },
+    {
+        "name": "Frank",
+        "gender": "male",
+        "age": 32,
+        "contact": "13400134000",
+        "address": "Chengdu"
+    },
+    {
+        "name": "Grace",
+        "gender": "female",
+        "age": 24,
+        "contact": "13300133000",
+        "address": "Wuhan"
+    },
+    {
+        "name": "Henry",
+        "gender": "male",
+        "age": 29,
+        "contact": "13200132000",
+        "address": "Nanjing"
+    },
+    {
+        "name": "Ivy",
+        "gender": "female",
+        "age": 26,
+        "contact": "13100131000",
+        "address": "Tianjin"
+    },
+    {
+        "name": "Jack",
+        "gender": "male",
+        "age": 31,
+        "contact": "13000130000",
+        "address": "Chongqing"
+    }
+]

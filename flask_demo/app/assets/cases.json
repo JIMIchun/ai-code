@@ -1,0 +1,90 @@
+[
+    {
+      "patient_id": 1,
+      "diagnosis": "直肠癌早期",
+      "case_date": "2023-01-15",
+      "treatment": "腹腔镜直肠癌根治术",
+      "follow_up": "术后3个月复查",
+      "knowledge_id": 1001
+    },
+    {
+        "patient_id": 1,
+        "diagnosis": "直肠癌早期",
+        "case_date": "2023-04-15",
+        "treatment": "腹腔镜直肠癌根治术",
+        "follow_up": "2023-01-15手术，经复查，无复发迹象",
+        "knowledge_id": 1001
+      },
+    {
+      "patient_id": 2,
+      "diagnosis": "直肠癌中期",
+      "case_date": "2023-02-20",
+      "treatment": "开腹直肠癌根治术+辅助化疗",
+      "follow_up": "术后6个月复查，恢复良好",
+      "knowledge_id": 1002
+    },
+    {
+      "patient_id": 3,
+      "diagnosis": "直肠癌晚期",
+      "case_date": "2023-03-10",
+      "treatment": "姑息性手术+化疗",
+      "follow_up": "术后1个月复查，病情稳定",
+      "knowledge_id": 1003
+    },
+    {
+      "patient_id": 4,
+      "diagnosis": "直肠癌早期",
+      "case_date": "2023-04-05",
+      "treatment": "经肛门局部切除术",
+      "follow_up": "术后2个月复查，无异常",
+      "knowledge_id": 1004
+    },
+    {
+      "patient_id": 5,
+      "diagnosis": "直肠癌中期",
+      "case_date": "2023-05-12",
+      "treatment": "腹腔镜直肠癌根治术+新辅助放疗",
+      "follow_up": "术后4个月复查，恢复良好",
+      "knowledge_id": 1005
+    },
+    {
+      "patient_id": 6,
+      "diagnosis": "直肠癌晚期",
+      "case_date": "2023-06-18",
+      "treatment": "姑息性手术+靶向治疗",
+      "follow_up": "术后1个月复查，症状缓解",
+      "knowledge_id": 1006
+    },
+    {
+      "patient_id": 7,
+      "diagnosis": "直肠癌早期",
+      "case_date": "2023-07-25",
+      "treatment": "腹腔镜直肠癌根治术",
+      "follow_up": "术后3个月复查，无复发",
+      "knowledge_id": 1007
+    },
+    {
+      "patient_id": 8,
+      "diagnosis": "直肠癌中期",
+      "case_date": "2023-08-10",
+      "treatment": "开腹直肠癌根治术+辅助化疗",
+      "follow_up": "术后5个月复查，恢复良好",
+      "knowledge_id": 1008
+    },
+    {
+      "patient_id": 9,
+      "diagnosis": "直肠癌晚期",
+      "case_date": "2023-09-03",
+      "treatment": "姑息性手术+化疗+免疫治疗",
+      "follow_up": "术后2个月复查，病情稳定",
+      "knowledge_id": 1009
+    },
+    {
+      "patient_id": 10,
+      "diagnosis": "直肠癌早期",
+      "case_date": "2023-10-15",
+      "treatment": "经肛门局部切除术",
+      "follow_up": "术后1个月复查，无异常",
+      "knowledge_id": 1010
+    }
+  ]
