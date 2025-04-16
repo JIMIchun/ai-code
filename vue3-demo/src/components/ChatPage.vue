@@ -2,24 +2,34 @@
     <div class="chat-page-container">
         <div class="messages-container">
             <div v-for="(message, index) in messageList" :key="index" class="message-item"
-                :class="{ 'user-message': message.isUser, 'think-message': !message.isUser && !message.isAnswer, 'answer-message': !message.isUser && message.isAnswer }">
-                <el-icon v-if="!message.isUser && message.isAnswer">
-                    <Opportunity />
-                </el-icon>
-                <el-icon v-else-if="!message.isUser && !message.isAnswer" class="is-loading">
-                    <Loading />
-                </el-icon>
-                <span v-if="!message.isUser && message.isAnswer" v-html="message.text"></span>
-                <span v-else>{{ message.text }}</span>
-                <el-icon v-if="message.isUser">
+                :style="'justify-content: ' + (message.isUser ? 'flex-end' : 'flex-start') + ';'">
+                <div v-if="!message.isUser && message.isAnswer" class="answer-message" v-html="message.text"></div>
+                <Collapse v-if="!message.isUser && !message.isAnswer && !message.isLoading" class="think-message" :content="message.text">
+                    <template #title>
+                        <div>
+                            <el-icon>
+                                <Opportunity />
+                            </el-icon>
+                            <span>推理完成</span>
+                        </div>
+                    </template>
+                </Collapse>
+                <div v-if="message.isLoading" class="think-message">
+                    <el-icon class="rotate-icon">
+                        <Loading />
+                    </el-icon>
+                    {{ message.text }}
+                </div>
+                <div v-if="message.isUser" class="user-message">{{ message.text }}</div>
+
+                <!-- <el-icon v-if="message.isUser">
                     <UserFilled />
-                </el-icon>
+                </el-icon> -->
             </div>
         </div>
-
         <div class="inputbar">
             <el-card shadow="never" class="input-section">
-                <el-input type="textarea" autosize v-model="userInput" placeholder="输入问题，向我提问" />
+                <el-input type="textarea" autosize v-model="userInput" placeholder="请输入您的问题..." />
                 <div class="input-buttons">
                     <el-icon class="more-options button" @click="moreOptions" title="More">
                         <Plus />
@@ -35,26 +45,27 @@
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue';
-import { useRoute } from 'vue-router';
+// import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import markdownit from 'markdown-it';
+import Collapse from './Collapse.vue';
 
-const route = useRoute();
+// const route = useRoute();
 // const router = useRouter();
 const userInput = ref("");
 const messageList = ref([
-    // { text: '输入问题，向我提问!', isUser: false },
+    { text: '您好，我是您的医疗AI助手，请向我提问!', isUser: false, isAnswer: true },
 ]);
 const { proxy } = getCurrentInstance();   //获取上下文
 const md = markdownit(); //markdown格式转换
 
-onMounted(() => {
-    console.log(route.query);
-    if (route.query.userInput) {
-        messageList.value.push({ text: route.query.userInput, isUser: true });
-        botAnswer(route.query.userInput);
-    }
-});
+// onMounted(() => {
+// console.log(route.query);
+// if (route.query.userInput) {
+//     messageList.value.push({ text: route.query.userInput, isUser: true });
+//     botAnswer(route.query.userInput);
+// }
+// });
 
 const moreOptions = () => {
     console.log("more options");
@@ -73,15 +84,16 @@ const sendMessage = () => {
 };
 
 const botAnswer = async (text) => {
-    //TODO: 调用
     try {
+        messageList.value.push({ text: '正在思考中...', isUser: false, isAnswer: false, isLoading: true });
         const response = await proxy.$axios.post('/send_input', `input_text=${text}`);
         const res = response.data.response;
         const thinkContent = extractThinkContent(res);  // 提取思考内容
         const formalResponse = removeThinkTags(res);    // 提取回答内容
-        console.log(thinkContent, formalResponse);
+        messageList.value.pop();
         messageList.value.push({ text: thinkContent, isUser: false, isAnswer: false });
         messageList.value.push({ text: md.render(formalResponse), isUser: false, isAnswer: true });
+        console.log(messageList.value);
     } catch (error) {
         console.error(error);
     }
@@ -130,41 +142,59 @@ const removeThinkTags = (response) => {
 }
 
 .messages-container {
-    height: calc(100% - 170px);
+    height: calc(100% - 150px);
     overflow-y: auto;
-    padding: 20px;
+    padding: 10px;
 }
 
 .message-item {
-    padding: 10px;
     margin-bottom: 10px;
     display: flex;
     text-align: left;
 }
 
+.message-item>div {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
 .user-message {
-    justify-content: flex-end;
     background-color: #dcf8c6;
-    margin-left: 50px;
+    margin-left: 30%;
 }
 
 .think-message {
-    justify-content: flex-start;
     background-color: #b3b5b8;
-    margin-right: 50px;
+    margin-right: 30%;
+    width: 80%;
+}
+
+/* 加载旋转动画 */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate-icon {
+    animation: rotate 1s linear infinite;
 }
 
 .answer-message {
-    justify-content: flex-start;
     background-color: #e9ecef;
-    margin-right: 50px;
+    margin-right: 30%;
 }
 
 .inputbar {
     bottom: 0;
     position: absolute;
     width: calc(100% - 40px);
-    margin: 20px;
+    margin: 10px;
 }
 
 :deep(.el-card__body) {

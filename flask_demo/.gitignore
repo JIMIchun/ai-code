@@ -1,0 +1,12 @@
+# 忽略 Python 缓存文件
+__pycache__/
+*.py[cod]
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

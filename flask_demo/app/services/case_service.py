@@ -21,6 +21,8 @@ def create_case(patient_id, diagnosis,case_date, treatment='', follow_up='', kno
 def get_case_by_id(case_id):
     return Case.query.get(case_id)
 
+def get_cases_by_patient_id(patient_id):
+    return Case.query.filter_by(patient_id=patient_id).order_by(Case.case_date.desc()).all()
 
 def get_all_cases():
     return Case.query.all()

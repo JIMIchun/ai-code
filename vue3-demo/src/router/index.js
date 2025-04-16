@@ -21,11 +21,6 @@ const routes = [
                 path: 'chat',
                 name: 'ChatPage',
                 component: ChatPage
-            },
-            {
-                path: 'dbtest',
-                name: 'DbTestPage',
-                component: () => import('@/components/dbTestPage.vue')
             }
         ]
     }

@@ -3,6 +3,7 @@ import requests
 import json
 import PyPDF2
 import time
+import os
 
 chat_bp = Blueprint("chat", __name__)
 
@@ -20,7 +21,7 @@ def send_input():
     )  # 打印用户输入，确保接收正确
 
     # 加载 PDF 内容
-    pdf_path = "../assets/knowledge.pdf"
+    pdf_path =  os.path.join(os.path.dirname(__file__), "../assets/knowledge.pdf")
     pdf_text = load_default_pdf_content(pdf_path)
 
     # 清空对话历史（确保每次请求都是从新的上下文开始）
@@ -28,10 +29,10 @@ def send_input():
 
     # TODO：添加系统身份设定和参考资料
 
-    # conversation_history.chat_bpend(
-    #     {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
-    # )
-    conversation_history.chat_bpend(
+    conversation_history.append(
+        {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
+    )
+    conversation_history.append(
         {
             "role": "system",
             "content": "你是IMRIS所开发的智能医学助手VV，擅长医学诊断和治疗分析。",
@@ -40,8 +41,8 @@ def send_input():
 
     # 添加用户输入和任务描述
     task_description = f"用户提出了问题：{user_input}。请根据提供的参考资料，作为IMRIS所开发的智能医学助手VV的身份，回答用户的问题。"
-    conversation_history.chat_bpend({"role": "system", "content": task_description})
-    conversation_history.chat_bpend({"role": "user", "content": user_input})
+    conversation_history.append({"role": "system", "content": task_description})
+    conversation_history.append({"role": "user", "content": user_input})
 
     # 发送消息到模型
     parsed_response = send_message(conversation_history)
@@ -55,7 +56,7 @@ def send_input():
     print(f"模型回复: {assistant_reply}")
 
     # 将模型回复添加到对话上下文中
-    conversation_history.chat_bpend({"role": "assistant", "content": assistant_reply})
+    conversation_history.append({"role": "assistant", "content": assistant_reply})
 
     # 返回模型的回答
     return jsonify(response=assistant_reply)
@@ -83,8 +84,9 @@ def load_default_pdf_content(pdf_path):
 
 # 与模型进行对话
 def send_message(messages):
-    url = "http://localhost:11434/api/chat"  # 模型的 API 地址
-    payload = {"model": "deepseek-r1:7b", "messages": messages}
+    # url = "http://localhost:11434/api/chat"  # 模型的 API 地址
+    url = "http://192.168.1.130:11434/api/chat"  # 模型的 API 地址
+    payload = {"model": "deepseek-r1:14b", "messages": messages}
     try:
         response = requests.post(url, json=payload)
         ndjson_lines = response.text.strip().splitlines()
