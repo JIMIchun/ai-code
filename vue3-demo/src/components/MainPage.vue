@@ -149,7 +149,7 @@ const initChart = () => {
     background-position: center; /* 使背景图片居中 */
 }
 
-/* .main-page::before {
+.main-page::before {
     content: '';
     position: absolute;
     top: 0;
@@ -158,7 +158,10 @@ const initChart = () => {
     height: 100%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%);
     z-index: 0; 
-} */
+}
+.main-page>*{
+    z-index: 1;
+}
 
 .main-page .sidebar {
     /* background: #f8f8f8;
@@ -230,5 +233,16 @@ header.el-header {
 .top-bar>.right {
     display: flex;
     align-items: center;
+}
+/* 滚动条样式 */
+:deep(*::-webkit-scrollbar) {
+    width: 4px;
+}
+:deep(*::-webkit-scrollbar-thumb) {
+    background: #ffffff;
+    border-radius: 4px;
+}
+:deep(*::-webkit-scrollbar-track) {
+    background: transparent;
 }
 </style>
