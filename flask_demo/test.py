@@ -8,12 +8,14 @@ def test_db():
         # initPatients()
         # initCases()
         # initKnowledges()
-        readData()
+        initCEA()
+        # readData()
 
 
 from app.services.patient_service import create_patient, get_all_patients
 from app.services.case_service import create_case, get_all_cases
 from app.services.knowledge_service import create_knowledge, get_all_knowledges
+from app.services.cea_service import create_cea
 
 
 # 写入patient数据
@@ -57,6 +59,18 @@ def initKnowledges():
                 symptoms=knowledge["symptoms"],
                 treatment_options=knowledge["treatment_options"],
                 prevention=knowledge["prevention"],
+            )
+
+# 写入cea指标数据
+def initCEA():
+    file_path = "./app/assets/cea_level.json"
+    with open(file_path, "r", encoding="utf-8") as file:
+        cea_data = json.load(file)  # 加载 JSON 数据
+        for data in cea_data:
+            create_cea(
+                patient_id=data["patient_id"],
+                time_point=data["time_point"],
+                ceal_level=data["ceal_level"],
             )
 
 

@@ -15,7 +15,7 @@ pdf_text_cache = None  # PDF 内容缓存
 # 接收前端发送的输入，并返回模型的回答
 @chat_bp.route("/send_input", methods=["POST"])
 def send_input():
-    user_input = request.form["input_text"]  # 获取前端传来的数据
+    user_input = request.get_json()["input_text"]  # 获取前端传来的数据
     print(
         f"用户输入: {user_input}，时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}"
     )  # 打印用户输入，确保接收正确

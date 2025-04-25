@@ -4,7 +4,8 @@
             <div v-for="(message, index) in messageList" :key="index" class="message-item"
                 :style="'justify-content: ' + (message.isUser ? 'flex-end' : 'flex-start') + ';'">
                 <div v-if="!message.isUser && message.isAnswer" class="answer-message" v-html="message.text"></div>
-                <Collapse v-if="!message.isUser && !message.isAnswer && !message.isLoading" class="think-message" :content="message.text">
+                <Collapse v-if="!message.isUser && !message.isAnswer && !message.isLoading" class="think-message"
+                    :content="message.text">
                     <template #title>
                         <div>
                             <el-icon>
@@ -31,10 +32,15 @@
             <el-card shadow="never" class="input-section">
                 <el-input type="textarea" autosize v-model="userInput" placeholder="请输入您的问题..." />
                 <div class="input-buttons">
-                    <el-icon class="more-options button" @click="moreOptions" title="More">
-                        <Plus />
-                    </el-icon>
-                    <el-icon class="send-message button" @click="sendMessage" title="Send message">
+                    <div>
+                        <el-icon class="more-options button" @click="moreOptions" title="语音输入">
+                            <Microphone />
+                        </el-icon>
+                        <el-icon class="more-options button" @click="moreOptions" title="上传图片">
+                            <Picture />
+                        </el-icon>
+                    </div>
+                    <el-icon class="send-message button" @click="sendMessage" title="发送">
                         <Top />
                     </el-icon>
                 </div>
@@ -86,7 +92,7 @@ const sendMessage = () => {
 const botAnswer = async (text) => {
     try {
         messageList.value.push({ text: '正在思考中...', isUser: false, isAnswer: false, isLoading: true });
-        const response = await proxy.$axios.post('/send_input', `input_text=${text}`);
+        const response = await proxy.$axios.post('/send_input', { input_text: text });
         const res = response.data.response;
         const thinkContent = extractThinkContent(res);  // 提取思考内容
         const formalResponse = removeThinkTags(res);    // 提取回答内容
@@ -165,7 +171,7 @@ const removeThinkTags = (response) => {
 }
 
 .think-message {
-    background-color: #b3b5b8;
+    background-color: #d1d6db;
     margin-right: 30%;
     width: 80%;
 }

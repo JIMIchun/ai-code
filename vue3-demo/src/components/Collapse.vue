@@ -40,7 +40,7 @@ const toggleCollapse = () => {
 
 <style scoped>
 .collapse-panel {
-  border: 1px solid #ebeef5;
+  /* border: 1px solid #ebeef5; */
   border-radius: 4px;
   margin-bottom: 10px;
   overflow: hidden;

@@ -9,7 +9,7 @@
                     </div>
                     <div class="bar-title" style="margin-left: 10px; text-align: left;">
                         <div style="color: #FFFFFF; font-weight: bold; font-size: 18px;">IMRIS医疗辅助中心</div>
-                        <div style=" color: #dedede; font-size: 13px;">医疗AI智能诊疗平台</div>
+                        <div style=" color: #f9f9f9; font-size: 13px;">医疗AI智能诊疗平台</div>
                     </div>
                 </div>
                 <div class="right">
@@ -28,7 +28,8 @@
             </div>
         </el-header>
         <el-container style="height: calc(100% - 60px);">
-            <el-aside class="sidebar" width="250px">
+            <!-- 侧边栏 -->
+            <el-aside class="sidebar" width="300px">
                 <el-card class="box-card">
                     <template #header> 病情概览 </template>
                     <div class="cases-timeline">
@@ -73,15 +74,16 @@ const selectAccount = ref('');
 const accountList = ref([]);
 const casesTimeline = ref([]);
 const chartRef = ref(null);
-
+let chart = null;
 
 onMounted(() => {
+    chart = echarts.init(chartRef.value);
     queryAllPatientData();
-    initChart();
 });
 
 watch(selectAccount, () => {
     queryPatientTimeline();
+    queryPatientQuota();
 });
 
 const sendMessage = (params) => {
@@ -95,7 +97,6 @@ const queryAllPatientData = async () => {
     proxy.$axios.get('/patients').then((res) => {
         accountList.value = res.data;
         selectAccount.value = res.data[0].patient_id;
-        queryPatientTimeline();
         console.log('All patient data:', accountList.value);
     })
         .catch((err) => {
@@ -115,23 +116,61 @@ const queryPatientTimeline = async () => {
         });
 }
 
-const initChart = () => {
-    const chart = echarts.init(chartRef.value);
+// 查询患者关键指标
+const queryPatientQuota = async () => {
+    const patientId = selectAccount.value;
+    proxy.$axios.get('/cea_level/' + patientId).then((res) => {
+        console.log('Patient quota:', res.data);
+        initChart(res.data); // 更新图表
+    })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+/**
+ * @description 初始化图表
+ * @param quatoData [] 关键指标数据列表
+ */
+const initChart = (quatoData) => {
     const option = {
         tooltip: {
             trigger: 'axis'
         },
+        grid: {  // 控制图表与边缘的距离
+            top: 50,
+            bottom: 40,
+            left: 30,
+            right: 40
+        },
         xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            data: quatoData.map(item => item.time_point),
+            name: '(周)',
+            axisTick: {
+                show: true,
+                alignWithLabel: true
+            }
         },
         yAxis: {
-            type: 'value'
+            type: 'value',
+            show: true,
+            name: "CEA 水平(ng/mL)",
+            nameLocation: "end",
+            nameTextStyle: {
+                align: "left",
+                overflow: "break",
+                width: 10
+            },
         },
         series: [
             {
-                data: [1, 2, 4, 2, 3, 5, 1],
-                type: 'line'
+                data: quatoData.map(item => Number(item.ceal_level)),
+                type: 'line',
+                label: {
+                    show: true,
+                    position: "bottom"
+                }
             }
         ]
     };
@@ -143,10 +182,10 @@ const initChart = () => {
 <style scoped>
 .main-page {
     height: 100%;
-    position: relative; /* 添加定位属性以便伪元素可以相对于其进行定位 */
+    position: relative;
     background-image: url('../assets/background-image.jpg');
-    background-size: cover; /* 使背景图片覆盖整个元素 */
-    background-position: center; /* 使背景图片居中 */
+    background-size: cover;
+    background-position: center;
 }
 
 .main-page::before {
@@ -156,10 +195,11 @@ const initChart = () => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%);
-    z-index: 0; 
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.1) 100%);
+    z-index: 0;
 }
-.main-page>*{
+
+.main-page>* {
     z-index: 1;
 }
 
@@ -167,6 +207,10 @@ const initChart = () => {
     /* background: #f8f8f8;
     border-radius: 0 10px 10px 0; */
     padding: 10px;
+}
+
+.box-card {
+    height: 100%;
 }
 
 .el-card {
@@ -196,16 +240,16 @@ const initChart = () => {
     padding: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: #f9f9f9;
+    color: #0097A7;
 }
 
 :global(.main-page .button:hover) {
     /* background-color: #efefef; */
-    background-color: #48758d;
+    background-color: #e1f2f5;
 }
 
 header.el-header {
-    border-bottom: 1px solid #bdbdbd;
+    border-bottom: 1px solid #ffffff;
 }
 
 .top-bar {
@@ -221,7 +265,8 @@ header.el-header {
 }
 
 .doc-image {
-    background-color: #2A5C82;
+    /* background-color: #79c1cf; */
+    background-color: #0097A7;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -234,14 +279,17 @@ header.el-header {
     display: flex;
     align-items: center;
 }
+
 /* 滚动条样式 */
 :deep(*::-webkit-scrollbar) {
     width: 4px;
 }
+
 :deep(*::-webkit-scrollbar-thumb) {
     background: #ffffff;
     border-radius: 4px;
 }
+
 :deep(*::-webkit-scrollbar-track) {
     background: transparent;
 }

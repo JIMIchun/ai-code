@@ -7,12 +7,18 @@ const instance = axios.create({
 // 添加拦截器
 instance.interceptors.request.use(
     config => {
-        // 在发送请求之前做些什么
-        config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        // 在发送请求之前
+        // config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        config.headers['Content-Type'] = 'application/json'
+        // 添加token
+        const token = localStorage.getItem('access_token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         return config;
     },
     error => {
-        // 对请求错误做些什么
+        // 处理请求错误
         return Promise.reject(error);
     }
 )

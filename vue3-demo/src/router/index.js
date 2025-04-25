@@ -2,6 +2,10 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import MainPage from '@/components/MainPage.vue'
 import BlankPage from '@/components/BlankPage.vue'
 import ChatPage from '@/components/ChatPage.vue'
+import LoginPage from '@/components/LoginPage.vue'
+import RegisterPage from '@/components/RegisterPage.vue'
+
+
 const routes = [
     {
         path: '/',
@@ -10,7 +14,7 @@ const routes = [
         children: [
             {
                 path: '',  // default route
-                redirect: 'blank'
+                redirect: 'chat'
             },
             {
                 path: 'blank',
@@ -21,9 +25,21 @@ const routes = [
                 path: 'chat',
                 name: 'ChatPage',
                 component: ChatPage
-            }
+            },
         ]
+    },
+
+    {
+        path: '/login',
+        name: 'LoginPage',
+        component: LoginPage
+    },
+    {
+        path: '/register',
+        name: 'RegisterPage',
+        component: RegisterPage
     }
+
 ]
 
 const router = createRouter({

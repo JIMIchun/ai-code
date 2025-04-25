@@ -1,0 +1,77 @@
+[
+  {
+    "patient_id": "1",
+    "time_point": "0",
+    "ceal_level": "120"
+  },
+  {
+    "patient_id": "1",
+    "time_point": "1",
+    "ceal_level": "95"
+  },
+  {
+    "patient_id": "1",
+    "time_point": "2",
+    "ceal_level": "75"
+  },
+  {
+    "patient_id": "1",
+    "time_point": "3",
+    "ceal_level": "60"
+  },
+  {
+    "patient_id": "1",
+    "time_point": "4",
+    "ceal_level": "45"
+  },
+  {
+    "patient_id": "2",
+    "time_point": "0",
+    "ceal_level": "30"
+  },
+  {
+    "patient_id": "2",
+    "time_point": "1",
+    "ceal_level": "25"
+  },
+  {
+    "patient_id": "2",
+    "time_point": "2",
+    "ceal_level": "20"
+  },
+  {
+    "patient_id": "2",
+    "time_point": "3",
+    "ceal_level": "15"
+  },
+  {
+    "patient_id": "2",
+    "time_point": "4",
+    "ceal_level": "12"
+  },
+  {
+    "patient_id": "3",
+    "time_point": "0",
+    "ceal_level": "10"
+  },
+  {
+    "patient_id": "3",
+    "time_point": "1",
+    "ceal_level": "8"
+  },
+  {
+    "patient_id": "3",
+    "time_point": "2",
+    "ceal_level": "6"
+  },
+  {
+    "patient_id": "3",
+    "time_point": "3",
+    "ceal_level": "5"
+  },
+  {
+    "patient_id": "3",
+    "time_point": "4",
+    "ceal_level": "4"
+  }
+]
