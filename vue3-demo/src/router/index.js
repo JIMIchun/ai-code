@@ -14,7 +14,7 @@ const routes = [
         children: [
             {
                 path: '',  // default route
-                redirect: 'chat'
+                redirect: 'login'
             },
             {
                 path: 'blank',
@@ -28,7 +28,6 @@ const routes = [
             },
         ]
     },
-
     {
         path: '/login',
         name: 'LoginPage',
@@ -38,7 +37,7 @@ const routes = [
         path: '/register',
         name: 'RegisterPage',
         component: RegisterPage
-    }
+    },
 
 ]
 

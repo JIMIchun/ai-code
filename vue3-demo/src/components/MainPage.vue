@@ -19,6 +19,7 @@
                     <el-icon class="button">
                         <UserFilled />
                     </el-icon>
+                    <img src="../assets/exit.svg" class="button" title="退出登录" @click="handleLogout" />
                     <!-- 选择患者 -->
                     <el-select v-model="selectAccount" filterable placeholder="选择账号" style="width: 150px">
                         <el-option v-for="item in accountList" :key="item.patient_id" :label="item.name"
@@ -64,6 +65,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getCurrentInstance } from 'vue';
 import * as echarts from 'echarts';
+import { ElMessageBox } from 'element-plus';
 
 const { proxy } = getCurrentInstance();   //获取上下文
 
@@ -176,6 +178,25 @@ const initChart = (quatoData) => {
     };
     chart.setOption(option);
 }
+
+/**
+ * @description 退出登录方法
+ */
+const handleLogout = () => {
+    ElMessageBox.confirm('确定要退出登录吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        // 清除token
+        localStorage.removeItem('access_token');
+        // 跳转到登录页
+        router.push('/login');
+    }).catch(() => {
+        // 用户取消操作
+    });
+};
+
 
 </script>
 
