@@ -55,8 +55,11 @@
                         <div class="avatar">{{ selectPatientInfo.name?.slice(0,1)  }}</div>
                         <div class="patient-info">
                             <div class="patient-name">{{ selectPatientInfo.name}}</div>
+                            <div class="lastest-case">
+                                <el-icon><Clock /></el-icon>
+                                最近诊断：{{ casesTimeline[0]?.treatment }}
+                            </div>
                         </div>
-
                     </el-card>
                     <div class="cases-timeline">
                         <div class="cardcon-title">
@@ -287,6 +290,7 @@ const handleLogout = () => {
 
 .box-card {
     height: 100%;
+    border: none;
 }
 
 .el-card {
@@ -384,6 +388,13 @@ header.el-header {
     text-align: center;
     font-weight: bold;
     font-style: italic;
+}
+.patient-info-card .patient-info {
+    flex: 1;
+}
+.patient-name {
+    font-weight: bold;
+    font-size: 18px;
 }
 
 /* 滚动条样式 */
