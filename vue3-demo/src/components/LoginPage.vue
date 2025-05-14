@@ -9,7 +9,7 @@
 
                 <el-form-item label="密码" prop="password">
                     <el-input v-model="loginForm.password" placeholder="请输入密码" type="password" show-password
-                        clearable />
+                        clearable @keyup.enter.native="handleLogin" />
                 </el-form-item>
 
                 <el-form-item>

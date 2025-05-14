@@ -7,6 +7,7 @@ from app import db
 # gender	VARCHAR(10)	患者性别（男/女/其他）	是
 # age	INT	患者年龄	是
 # contact	VARCHAR(100)	患者联系方式	是
+# doctor_id	INT	    患者主治医生    是
 # address	VARCHAR(255)	患者地址	否
 # registration_date	DATE	患者注册日期	是
 
@@ -17,6 +18,7 @@ class Patient(db.Model):
     gender = db.Column(db.String(10), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     contact = db.Column(db.String(100), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     address = db.Column(db.String(255))
     registration_date = db.Column(db.Date, nullable=False)
 
@@ -32,6 +34,7 @@ class Patient(db.Model):
             "patient_id": self.patient_id,
             "name": self.name,
             "gender": self.gender,
+            "doctor_id": self.doctor_id,
             "age": self.age,
             "contact": self.contact,
             "address": self.address,

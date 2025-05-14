@@ -3,6 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false, //关闭ESLint
   devServer: {
+    webSocketServer:false, 
     proxy: {
       '/api': {
         // target: 'http://192.168.1.130:5000', // 目标服务器地址

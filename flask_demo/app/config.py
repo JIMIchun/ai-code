@@ -1,4 +1,4 @@
-import os
+from datetime import datetime
 
 # 数据库配置
 # JWT配置
@@ -21,6 +21,6 @@ class Config:
     # os.environ.get('JWT_SECRET_KEY', 'default_secret_key')
     JWT_SECRET_KEY= 'your-secret-key-keep-it-safe' 
     # 1小时过期
-    JWT_ACCESS_TOKEN_EXPIRES = 3600  
+    JWT_ACCESS_TOKEN_EXPIRES = 3600
     
     

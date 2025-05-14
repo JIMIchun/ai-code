@@ -27,7 +27,7 @@ def get_user_info(user_id):
     user = User.query.filter_by(user_id=user_id).first()
     if not user:
         return None
-    return user.to_dict()
+    return user
 
 # 获取所有用户
 def get_all_users():

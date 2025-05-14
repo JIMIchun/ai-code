@@ -16,15 +16,24 @@
                     <el-icon class="button" title="通知">
                         <BellFilled />
                     </el-icon>
-                    <el-icon class="button">
-                        <UserFilled />
-                    </el-icon>
-                    <img src="../assets/exit.svg" class="button" title="退出登录" @click="handleLogout" />
-                    <!-- 选择患者 -->
-                    <el-select v-model="selectAccount" filterable placeholder="选择账号" style="width: 150px">
-                        <el-option v-for="item in accountList" :key="item.patient_id" :label="item.name"
-                            :value="item.patient_id" />
-                    </el-select>
+                    <el-popover placement="bottom" trigger="hover" width="200">
+                        <template #reference>
+                            <el-icon class="button">
+                                <UserFilled />
+                            </el-icon>
+                        </template>
+                        <div class="user-info-card">
+                            <div class="user-details">
+                                <div class="username">用户名：{{ userInfo.username }}</div>
+                                <div class="user-role">职称：主治医师</div>
+                            </div>
+                            <el-button plain size="small" @click="handleLogout" style="margin-top: 10px; width: 100%">
+                                退出登录
+                            </el-button>
+                        </div>
+                    </el-popover>
+
+                    <!-- <img src="../assets/exit.svg" class="button" title="退出登录" @click="handleLogout" /> -->
                 </div>
             </div>
         </el-header>
@@ -32,7 +41,23 @@
             <!-- 侧边栏 -->
             <el-aside class="sidebar" width="300px">
                 <el-card class="box-card">
-                    <template #header> 病情概览 </template>
+                    <!-- 选择患者 -->
+                    <el-select v-model="selectPatientId" filterable placeholder="选择账号" style="width: 100%">
+                        <template #prefix>
+                            <el-icon>
+                                <Search />
+                            </el-icon>
+                        </template>
+                        <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name"
+                            :value="item.patient_id" />
+                    </el-select>
+                    <el-card class="patient-info-card">
+                        <div class="avatar">{{ selectPatientInfo.name?.slice(0,1)  }}</div>
+                        <div class="patient-info">
+                            <div class="patient-name">{{ selectPatientInfo.name}}</div>
+                        </div>
+
+                    </el-card>
                     <div class="cases-timeline">
                         <div class="cardcon-title">
                             <img src="../assets/折线.png" style="margin-right: 5px;">病历时间轴
@@ -72,33 +97,63 @@ const { proxy } = getCurrentInstance();   //获取上下文
 const router = useRouter();
 
 // const isShowSidebar = ref(false);
-const selectAccount = ref('');
+const userInfo = ref({});
+const selectPatientId = ref('');
+const selectPatientInfo = ref({});
+const patientsList = ref([]);
 const accountList = ref([]);
 const casesTimeline = ref([]);
 const chartRef = ref(null);
 let chart = null;
 
 onMounted(() => {
+    initData();
     chart = echarts.init(chartRef.value);
-    queryAllPatientData();
+
 });
 
-watch(selectAccount, () => {
+watch(selectPatientId, () => {
+    selectPatientInfo.value = patientsList.value.find(item => item.patient_id === selectPatientId.value);
     queryPatientTimeline();
     queryPatientQuota();
 });
+
+const initData = async () => {
+    await getUserInfo();  // 获取用户信息
+    queryPatientsByUserId();
+    queryAllPatientData();
+}
+
 
 const sendMessage = (params) => {
     console.log('Send message:', params);
     router.push({ path: '/chat', query: params });
 };
 
+const getUserInfo = async () => {
+    try {
+        const token = localStorage.getItem('access_token');
+        proxy.$axios.get('/user_info').then((response) => {
+            userInfo.value = response.data;
+            console.log('User info:', userInfo.value);
+        })
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+    }
+}
+
+const queryPatientsByUserId = async () => {
+    proxy.$axios.get('/get_patients_by_user').then((res) => {
+        patientsList.value = res.data;
+        console.log(`user ${userInfo.value.username}'s patients data:`, patientsList.value);
+    })
+}
 
 // 查询所有患者数据
 const queryAllPatientData = async () => {
     proxy.$axios.get('/patients').then((res) => {
         accountList.value = res.data;
-        selectAccount.value = res.data[0].patient_id;
+        selectPatientId.value = res.data[0].patient_id;
         console.log('All patient data:', accountList.value);
     })
         .catch((err) => {
@@ -108,7 +163,7 @@ const queryAllPatientData = async () => {
 
 // 查询患者病历时间轴
 const queryPatientTimeline = async () => {
-    const patientId = selectAccount.value;
+    const patientId = selectPatientId.value;
     proxy.$axios.get('/cases_by_patient/' + patientId).then((res) => {
         casesTimeline.value = res.data;
         console.log('Patient timeline:', casesTimeline.value);
@@ -120,7 +175,7 @@ const queryPatientTimeline = async () => {
 
 // 查询患者关键指标
 const queryPatientQuota = async () => {
-    const patientId = selectAccount.value;
+    const patientId = selectPatientId.value;
     proxy.$axios.get('/cea_level/' + patientId).then((res) => {
         console.log('Patient quota:', res.data);
         initChart(res.data); // 更新图表
@@ -299,6 +354,36 @@ header.el-header {
 .top-bar>.right {
     display: flex;
     align-items: center;
+}
+
+.user-info-card .el-button:hover {
+    color: #0097A7;
+    border-color: #0097A7;
+    background: #0097a71a;
+}
+
+.patient-info-card {
+    margin: 10px 0;
+    height: 100px;
+}
+:deep(.patient-info-card>.el-card__body){
+    height: 80px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    column-gap: 10px;
+}
+
+.patient-info-card .avatar{
+    width: 50px;
+    height: 50px;
+    background-color: #0097A7;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 40px;
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
 }
 
 /* 滚动条样式 */

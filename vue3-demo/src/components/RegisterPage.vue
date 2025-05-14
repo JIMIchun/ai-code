@@ -86,8 +86,8 @@ const handleRegister = () => {
 
                 if (response.status === 200) {
                     ElMessage.success('注册成功！')
-                    // 注册成功后的操作，例如跳转到登录页
-                    // router.push('/login')
+                    // 跳转到登录页
+                    router.push('/login')
                 } else {
                     ElMessage.error(response.data.message || '注册失败')
                 }

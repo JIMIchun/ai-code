@@ -21,6 +21,9 @@ def create_patient(name, gender, age, contact, address):
 def get_patient_by_id(patient_id):
     return Patient.query.get(patient_id)
 
+def get_patients_by_user(user_id):
+    return Patient.query.filter_by(doctor_id=user_id).all()
+
 
 def get_all_patients():
     return Patient.query.all()

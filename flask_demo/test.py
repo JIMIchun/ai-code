@@ -8,14 +8,17 @@ def test_db():
         # initPatients()
         # initCases()
         # initKnowledges()
-        initCEA()
-        # readData()
+        # initCEA()
+        # handleDoctor_id()
+        readData()
+        
 
 
 from app.services.patient_service import create_patient, get_all_patients
 from app.services.case_service import create_case, get_all_cases
 from app.services.knowledge_service import create_knowledge, get_all_knowledges
 from app.services.cea_service import create_cea
+from app import db
 
 
 # 写入patient数据
@@ -79,13 +82,20 @@ def readData():
     print("all patients:")
     for p in get_all_patients():
         print(p.to_dict())
-    print("all cases:")
-    for c in get_all_cases():
-        print(c.to_dict())
-    print("all knowledges:")
-    for k in get_all_knowledges():
-        print(k.to_dict())
+    # print("all cases:")
+    # for c in get_all_cases():
+    #     print(c.to_dict())
+    # print("all knowledges:")
+    # for k in get_all_knowledges():
+    #     print(k.to_dict())
 
+
+def handleDoctor_id():
+    # 给patient中的前五条数据添加doctor_id
+    patients = get_all_patients()[:5]
+    for patient in patients:
+        patient.doctor_id = 1
+        db.session.commit()
 
 if __name__ == "__main__":
     test_db()
