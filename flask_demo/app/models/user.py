@@ -2,7 +2,7 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# 定义Patient模型，每个模型对应数据库中的一张表
+# 定义User模型，每个模型对应数据库中的一张表
 # 字段名    数据类型    描述   是否必填
 # user_id    INT	    用户唯一标识符（主键）  是
 # username   VARCHAR(80)   用户名   是

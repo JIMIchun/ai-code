@@ -33,7 +33,7 @@
                 <el-input type="textarea" autosize v-model="userInput" placeholder="请输入您的问题..." />
                 <div class="input-buttons">
                     <div>
-                        <el-icon class="more-options button" @click="moreOptions" title="语音输入">
+                        <el-icon class="more-options button" @click="voiceInput" title="语音输入">
                             <Microphone />
                         </el-icon>
                         <el-icon class="more-options button" @click="moreOptions" title="上传图片">
@@ -46,13 +46,26 @@
                 </div>
             </el-card>
         </div>
+
+        <el-dialog v-model="dialogVisible" title="语音输入">
+            <el-button @click="startRecord" :disabled="startBtnDisabled">开始录音</el-button>
+            <el-button @click="endRecord" :disabled="endBtnDisabled">结束录音</el-button>
+            <div style="background: #f2f2f2;"> {{ recordStatus }}</div>
+            <div>录音内容：</div>
+            <div>{{ voiceRecord }}</div>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button type="primary" @click="closeDialog">完成</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue';
 // import { useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
 import markdownit from 'markdown-it';
 import Collapse from './Collapse.vue';
 
@@ -65,22 +78,10 @@ const messageList = ref([
 const { proxy } = getCurrentInstance();   //获取上下文
 const md = markdownit(); //markdown格式转换
 
-// onMounted(() => {
-// console.log(route.query);
-// if (route.query.userInput) {
-//     messageList.value.push({ text: route.query.userInput, isUser: true });
-//     botAnswer(route.query.userInput);
-// }
-// });
-
-const moreOptions = () => {
-    console.log("more options");
-};
-
 const sendMessage = () => {
     if (!userInput.value.trim()) { // 检查 userInput非空
         ElMessage.warning('输入内容不能为空');
-        return; // 结束函数执行
+        return;
     }
     messageList.value.push({ text: userInput.value, isUser: true });
     setTimeout(() => {
@@ -89,6 +90,63 @@ const sendMessage = () => {
     }, 500);
 };
 
+
+const dialogVisible = ref(false);
+const voiceRecord = ref('')
+const startBtnDisabled = ref(false)
+const endBtnDisabled = ref(true)
+const recordStatus = ref('')
+
+// 控制语音输入
+const voiceInput = () => { dialogVisible.value = true;}
+const closeDialog = () => { 
+    dialogVisible.value = false;
+    console.log(voiceRecord.value)
+};
+
+const startRecord = () => {
+    endBtnDisabled.value = false
+    startBtnDisabled.value = true
+    proxy.$axios.post('/start_record').then(res => {
+        if (res.data.status === 'success') {
+            recordStatus.value = '录音中...'
+        } else {
+            recordStatus.value = `错误：${res.data.message}`
+        }
+    })
+        .catch(() => {
+            recordStatus.value = '启动录音失败</span>';
+            resetButtons();
+        });
+}
+
+const endRecord = () => {
+    recordStatus.value = '转换中...'
+    proxy.$axios.post('/stop_record').then(res => {
+        if (res.data.status === 'success') {
+            recordStatus.value = '转换结束！'
+            voiceRecord.value = res.data.result.text;
+        } else {
+            recordStatus.value = `错误：${res.data.message}`;
+        }
+    })
+        .catch(() => {
+            recordStatus.value = '请求失败</span>';
+        })
+    resetButtons();
+}
+
+const resetButtons = () => {
+    endBtnDisabled.value = true
+    startBtnDisabled.value = false
+}
+
+
+const moreOptions = () => {
+    console.log("more options");
+};
+
+// 调用模型请求
 const botAnswer = async (text) => {
     try {
         messageList.value.push({ text: '正在思考中...', isUser: false, isAnswer: false, isLoading: true });

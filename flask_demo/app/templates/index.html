@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音转文字</title>
+    <style>
+        :root {
+            --background-color: #121212;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .face {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: #0080ff;
+            border-radius: 50%;
+            box-shadow: #0080ff 0px 0px 10px 4px;
+            cursor: pointer;
+        }
+
+        .eye {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background-color: #121212;
+            border-radius: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .left-eye {
+            left: 35px;
+        }
+
+        .right-eye {
+            right: 35px;
+        }
+
+        .wave-container {
+            position: absolute;
+            bottom: 30px;
+            left: 25%;
+            width: 50%;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wave-container>div {
+            height: 100%;
+            width: 5px;
+            margin-right: 2px;
+            background-color: #121212;
+            animation: wave 1.5s infinite var(--delay) ease-in-out;
+
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                height: 60px;
+            }
+
+            50% {
+                height: 0px;
+            }
+        }
+
+        @keyframes squint {
+
+            0%,
+            100% {
+                height: 60px;
+            }
+
+            20%,
+            80% {
+                height: 10px;
+            }
+        }
+
+        @keyframes look-down {
+
+            0%,
+            100% {
+                transform: translateY(-50%);
+            }
+
+            25% {
+                transform: translateY(10px);
+                height: 30px;
+            }
+
+            50% {
+                transform: translate(-10px, 10px);
+                height: 30px;
+            }
+
+            75% {
+                transform: translate(10px, 10px);
+                height: 30px;
+            }
+        }
+
+        @keyframes wave {
+
+            0%,
+            40%,
+            100% {
+                transform: scale(0.6);
+            }
+
+            20% {
+                transform: scale(1);
+            }
+
+        }
+
+        div#desc-container {
+            padding: 10px;
+            color: #47a6ff;
+            text-shadow: #47a6ff 1px 1px 2px;
+            height: 25px;
+        }
+
+        #transcription {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="face">
+        <div class="eye left-eye"></div>
+        <div class="eye right-eye"></div>
+        <div class="wave-container" style="display: none;">
+            <div class="wave1" style="--delay: -1.1s;"></div>
+            <div class="wave2" style="--delay: -1.0s;"></div>
+            <div class="wave3" style="--delay: -0.9s;"></div>
+            <div class="wave4" style="--delay: -0.8s;"></div>
+            <div class="wave5" style="--delay: -0.7s;"></div>
+            <div class="wave6" style="--delay: -0.6s;"></div>
+            <div class="wave7" style="--delay: -0.5s;"></div>
+        </div>
+    </div>
+    <div id="desc-container"></div>
+
+    <button id="recordButton">开始录音</button>
+    <div id="transcription"></div>
+
+    <script>
+        window.onload = function () {
+            blinkEyesNums(2);
+            displayText('点击[开始录音]，与我对话吧！');
+        };
+        const eyes = document.querySelectorAll('.eye');
+
+        // 眨眼次数
+        const blinkEyesNums = (num = 1) => {
+            for (let i = 0; i < num; i++) {
+                let count = 0;
+                const blinkInterval = setInterval(() => {
+                    eyes.forEach(eye => {
+                        eye.style.animation = 'none'; // 先移除动画
+                        void eye.offsetWidth;
+                        eye.style.animation = 'blink 0.5s ease-in-out forwards';
+                    });
+                    count++;
+                    if (count >= num) {
+                        clearInterval(blinkInterval);
+                    }
+                }, 700); // 每次眨眼间隔
+            }
+        }
+
+        // 眯眼睛
+        const squintEyes = () => {
+            eyes.forEach(eye => {
+                eye.style.animation = 'none'; // 先移除动画
+                void eye.offsetWidth;
+                eye.style.transition = 'height 0.5s ease-in-out';
+                eye.style.height = '10px';
+            });
+        }
+
+        // 眯眼恢复
+        const squintEyesReturn = () => {
+            eyes.forEach(eye => {
+                eye.style.animation = 'none'; // 先移除动画
+                void eye.offsetWidth;
+                eye.style.height = '60px';
+                setTimeout(() => {
+                    eye.style.transition = '';
+                }, 500);
+            });
+        }
+
+        // 向下看
+        const lookDownEyes = () => {
+            eyes.forEach(eye => {
+                eye.style.animation = 'none'; // 先移除动画
+                void eye.offsetWidth;
+                eye.style.animation = 'look-down 1.5s ease-in-out forwards';
+            });
+        }
+
+        // 文字逐字显示
+        let textInterval;
+        const displayText = (text) => {
+            let index = 0;
+            const container = document.getElementById('desc-container');
+            if (textInterval) { // 清空上次渲染内容
+                clearInterval(textInterval);
+                container.textContent = '';
+            }
+            textInterval = setInterval(() => {
+                if (index < text.length) {
+                    container.textContent += text[index];
+                    index++;
+                } else {
+                    clearInterval(textInterval);
+                }
+            }, 80); // 每个字符显示的间隔时间
+        }
+
+        // 录音及转文字
+        let isRecording = false;
+        const recordButton = document.getElementById('recordButton');
+        const transcriptionDiv = document.getElementById('transcription');
+        const waveDiv = document.querySelector('.wave-container')
+        let recordText = '';
+
+        recordButton.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        function startRecording() {
+            recordButton.textContent = '停止录音';
+            isRecording = true;
+            displayText('正在录音...');
+            waveDiv.style.display = '';
+            squintEyes();
+
+            // 调用后端接口，开始录音
+            fetch('/start_record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: 'Start recording' })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Start recording response:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function stopRecording() {
+            recordButton.textContent = '开始录音';
+            isRecording = false;
+            displayText('正在转换...');
+            waveDiv.style.display = 'none';
+            squintEyesReturn();
+
+
+            // 调用后端接口，结束录音
+            fetch('/stop_record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: 'Stop recording' })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        recordText = data.result.text;
+                        transcriptionDiv.textContent = recordText.length > 0 ? recordText : '未检测到语音...';
+                        displayText(recordText.length > 0 ? '识别完成...' : '没听清楚，请再说一遍...');
+                        lookDownEyes();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+
+</html>

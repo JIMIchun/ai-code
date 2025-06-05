@@ -39,6 +39,12 @@ const routes = [
         component: RegisterPage
     },
 
+    {
+        path: '/test',
+        name: 'testPage',
+        component: () => import('@/components/voice-test.vue')
+    }
+
 ]
 
 const router = createRouter({

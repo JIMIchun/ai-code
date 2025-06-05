@@ -31,9 +31,10 @@ def create_app(config_class=Config):
     from app.routes.patient_routes import patient_bp
     from app.routes.case_routes import case_bp
     from app.routes.knowledge_routes import knowledge_bp
-    from app.routes.chat_routes import chat_bp
     from app.routes.cea_routes import cea_bp
     from app.routes.user_routes import user_bp
+    from app.routes.chat_routes import chat_bp
+    from app.routes.voice_routes import voice_bp
 
     app.register_blueprint(patient_bp, url_prefix="/")
     app.register_blueprint(case_bp, url_prefix="/")
@@ -41,6 +42,12 @@ def create_app(config_class=Config):
     app.register_blueprint(chat_bp, url_prefix="/")
     app.register_blueprint(cea_bp, url_prefix="/")
     app.register_blueprint(user_bp, url_prefix="/")
+    app.register_blueprint(voice_bp, url_prefix="/")
+    
+    from app.voice.voice_input import voice_input_bp
+    app.register_blueprint(voice_input_bp, url_prefix="/")
+    
+    
 
     with app.app_context():
         db.create_all()  # 创建所有未存在的表

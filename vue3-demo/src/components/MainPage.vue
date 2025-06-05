@@ -142,6 +142,7 @@ const getUserInfo = async () => {
         })
     } catch (error) {
         console.error('获取用户信息失败:', error);
+        router.push('/login');
     }
 }
 
@@ -376,6 +377,7 @@ header.el-header {
     align-items: flex-start;
     justify-content: flex-start;
     column-gap: 10px;
+    background: #0097a547;
 }
 
 .patient-info-card .avatar{
@@ -395,6 +397,9 @@ header.el-header {
 .patient-name {
     font-weight: bold;
     font-size: 18px;
+}
+.lastest-case {
+    font-size: 14px;
 }
 
 /* 滚动条样式 */
