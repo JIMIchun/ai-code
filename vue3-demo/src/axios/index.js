@@ -1,5 +1,6 @@
-// src/axios/index.js
 import axios from 'axios';
+import router from '@/router';
+
 const instance = axios.create({
     baseURL: '/api',
     // timeout: 100000,   //超时时间
@@ -18,9 +19,21 @@ instance.interceptors.request.use(
         return config;
     },
     error => {
-        // 处理请求错误
         return Promise.reject(error);
     }
 )
-// instance.interceptors.response.use(...)
+instance.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        // 处理401身份验证错误
+        if (error.response && error.response.status === 401) {
+            console.log('响应拦截器-错误-401')
+            router.push('/login')
+            localStorage.removeItem('access_token')
+        }
+        return Promise.reject(error);
+    }
+)
 export default instance;
