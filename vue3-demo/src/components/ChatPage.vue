@@ -2,30 +2,34 @@
     <div class="chat-page-container">
         <div class="messages-container">
             <div v-for="(message, index) in messageList" :key="index" class="message-item"
-                :style="'justify-content: ' + (message.isUser ? 'flex-end' : 'flex-start') + ';'">
-                <div v-if="!message.isUser && message.isAnswer" class="answer-message" v-html="message.text"></div>
-                <Collapse v-if="!message.isUser && !message.isAnswer && !message.isLoading" class="think-message"
-                    :content="message.text">
-                    <template #title>
-                        <div>
-                            <el-icon>
-                                <Opportunity />
-                            </el-icon>
-                            <span>推理完成</span>
-                        </div>
-                    </template>
-                </Collapse>
-                <div v-if="message.isLoading" class="think-message">
+                :style="'justify-content: ' + (message.identity_type === IdentityType.USER ? 'flex-end' : 'flex-start') + ';'">
+                <div v-if="message.identity_type === IdentityType.MODEL" style="width: 80%;">
+                    <!-- 模型思考 -->
+                    <Collapse v-if="message.inference" class="think-message" :content="message.text">
+                        <template #title>
+                            <div>
+                                <el-icon>
+                                    <Opportunity />
+                                </el-icon>
+                                <span>推理完成</span>
+                            </div>
+                        </template>
+                    </Collapse>
+                    <!-- 模型回答 -->
+                    <div class="answer-message" v-html="message.content"></div>
+                </div>
+
+                <!-- 用户提问 -->
+                <div v-else-if="message.identity_type === IdentityType.USER" class="user-message">{{ message.content }}
+                </div>
+
+                <!-- 缓冲 -->
+                <div v-else-if="message.isLoading" class="think-message">
                     <el-icon class="rotate-icon">
                         <Loading />
                     </el-icon>
                     {{ message.text }}
                 </div>
-                <div v-if="message.isUser" class="user-message">{{ message.text }}</div>
-
-                <!-- <el-icon v-if="message.isUser">
-                    <UserFilled />
-                </el-icon> -->
             </div>
         </div>
         <div class="inputbar">
@@ -63,32 +67,95 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue';
-// import { useRoute } from 'vue-router';
+import { ref, watch, getCurrentInstance, defineProps, defineEmits } from 'vue';
 import { ElMessage } from 'element-plus'
 import markdownit from 'markdown-it';
 import Collapse from './Collapse.vue';
+import { IdentityType, MessageType } from '../assets/enums.js'
 
-// const route = useRoute();
-// const router = useRouter();
-const userInput = ref("");
-const messageList = ref([
-    { text: '您好，我是您的医疗AI助手，请向我提问!', isUser: false, isAnswer: true },
-]);
+const props = defineProps({  // 接收父组件数据
+    selectSessionId: Number,
+    selectPatientId: Number
+})
+const emit = defineEmits(['updateSessionTitle']);
 const { proxy } = getCurrentInstance();   //获取上下文
+
+const userInput = ref("");
+const initMessage = [
+    { content: '您好，我是您的医疗AI助手，请向我提问!', message_type: '', identity_type: IdentityType.MODEL, inference: '' }
+]
+const messageList = ref([]);
+const isNewSession = ref(false);
+
 const md = markdownit(); //markdown格式转换
+
+// 加载当前会话内容
+const queryMessagesBySession = () => {
+    if (props.selectSessionId) {
+        proxy.$axios.get(`/get_messages/${props.selectSessionId}`).then(res => {
+            if (res.status === 200) {
+                if (res.data.length > 0) {
+                    messageList.value = res.data;
+                }
+                else {
+                    isNewSession.value = true;
+                    messageList.value = JSON.parse(JSON.stringify(initMessage));
+                }
+                console.log('current messages:', res.data)
+            }
+        })
+    }
+}
+
+watch(() => props.selectSessionId,
+    () => {
+        isNewSession.value = false;
+        queryMessagesBySession();
+    },
+    { immediate: true })
 
 const sendMessage = () => {
     if (!userInput.value.trim()) { // 检查 userInput非空
         ElMessage.warning('输入内容不能为空');
         return;
     }
-    messageList.value.push({ text: userInput.value, isUser: true });
+    messageList.value.push({ content: userInput.value, identity_type: IdentityType.USER, message_type: MessageType.TEXT });
+    handleNewMessage(IdentityType.USER, MessageType.TEXT, userInput.value);
+    if (isNewSession.value) {
+        changeSessionTitle(userInput.value);
+    }
     setTimeout(() => {
         botAnswer(userInput.value);
         userInput.value = "";
     }, 500);
 };
+
+const changeSessionTitle = (newTitle) => {
+    proxy.$axios.post('/update_session_title', { session_id: props.selectSessionId, title: newTitle }).then(res => {
+        if (res.status === 200) {
+            console.log('session title updated:', newTitle);
+            emit('updateSessionTitle', newTitle);
+        }
+    })
+}
+
+// 添加新message
+const handleNewMessage = (identity_type, message_type, content) => {
+    proxy.$axios.post('/new_message', {
+        session_id: props.selectSessionId,
+        identity_type: identity_type,
+        message_type: message_type,
+        content: content,
+        inference: ''
+    }).then(res => {
+        if (res.status === 201) {// 设置消息成功
+            console.log(res.data)
+        }
+    })
+        .catch(error => {
+            console.error(error);
+        })
+}
 
 
 const dialogVisible = ref(false);
@@ -98,8 +165,8 @@ const endBtnDisabled = ref(true)
 const recordStatus = ref('')
 
 // 控制语音输入
-const voiceInput = () => { dialogVisible.value = true;}
-const closeDialog = () => { 
+const voiceInput = () => { dialogVisible.value = true; }
+const closeDialog = () => {
     dialogVisible.value = false;
     console.log(voiceRecord.value)
 };
@@ -148,19 +215,24 @@ const moreOptions = () => {
 
 // 调用模型请求
 const botAnswer = async (text) => {
-    try {
-        messageList.value.push({ text: '正在思考中...', isUser: false, isAnswer: false, isLoading: true });
-        const response = await proxy.$axios.post('/send_input', { input_text: text });
-        const res = response.data.response;
-        const thinkContent = extractThinkContent(res);  // 提取思考内容
-        const formalResponse = removeThinkTags(res);    // 提取回答内容
-        messageList.value.pop();
-        messageList.value.push({ text: thinkContent, isUser: false, isAnswer: false });
-        messageList.value.push({ text: md.render(formalResponse), isUser: false, isAnswer: true });
-        console.log(messageList.value);
-    } catch (error) {
-        console.error(error);
-    }
+    messageList.value.push({ text: '正在思考中...', isLoading: true });
+    proxy.$axios.post('/send_input', { input_text: text })
+        .then(res => {
+            if (res.status === 200) {
+                const response = res.data.response;
+                const thinkContent = extractThinkContent(response);  // 提取思考内容
+                const formalResponse = removeThinkTags(response);    // 提取回答内容
+                messageList.value.pop();
+                messageList.value.push({ content: thinkContent, identity_type: IdentityType.MODEL, message_type: MessageType.TEXT });
+                messageList.value.push({ content: md.render(formalResponse), identity_type: IdentityType.MODEL, message_type: MessageType.TEXT });
+                console.log(messageList.value);
+            }
+        })
+        .catch((error) => {
+            messageList.value.pop();
+            messageList.value.push({ content: '请求失败，请稍后再试!', identity_type: IdentityType.MODEL, message_type: MessageType.TEXT });
+            console.error(error);
+        })
 }
 
 // 提取 <think> 标签中的内容
@@ -218,20 +290,26 @@ const removeThinkTags = (response) => {
 }
 
 .message-item>div {
+    max-width: 80%;
+}
+
+.user-message,
+.answer-message,
+.think-message {
     padding: 10px;
     border-radius: 10px;
-    max-width: 80%;
 }
 
 .user-message {
     background-color: #dcf8c6;
-    margin-left: 30%;
+}
+
+.answer-message {
+    background-color: #e9ecef;
 }
 
 .think-message {
     background-color: #d1d6db;
-    margin-right: 30%;
-    width: 80%;
 }
 
 /* 加载旋转动画 */
@@ -247,11 +325,6 @@ const removeThinkTags = (response) => {
 
 .rotate-icon {
     animation: rotate 1s linear infinite;
-}
-
-.answer-message {
-    background-color: #e9ecef;
-    margin-right: 30%;
 }
 
 .inputbar {
@@ -295,7 +368,7 @@ const removeThinkTags = (response) => {
 .markdown-body {
     font-size: 16px;
     line-height: 1.6;
-    color: #333;
+    color: var(--font-color);
 }
 
 .markdown-body h1 {

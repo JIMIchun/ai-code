@@ -9,24 +9,12 @@ import RegisterPage from '@/components/RegisterPage.vue'
 const routes = [
     {
         path: '/',
+        redirect: '/main'
+    },
+    {
+        path: '/main',
         name: 'MainPage',
-        component: MainPage,
-        children: [
-            {
-                path: '',  // default route
-                redirect: 'login'
-            },
-            {
-                path: 'blank',
-                name: 'BlankPage',
-                component: BlankPage
-            },
-            {
-                path: 'chat',
-                name: 'ChatPage',
-                component: ChatPage
-            },
-        ]
+        component: MainPage
     },
     {
         path: '/login',

@@ -1,6 +1,9 @@
 from app import create_app
 import json
 
+from app.models.message import Message
+from app.models.session import Session
+
 
 def test_db():
     app = create_app()
@@ -10,7 +13,11 @@ def test_db():
         # initKnowledges()
         # initCEA()
         # handleDoctor_id()
-        readData()
+        # readData()
+        
+        db.session.query(Message).delete()
+        db.session.query(Session).delete()
+        db.session.commit()
         
 
 

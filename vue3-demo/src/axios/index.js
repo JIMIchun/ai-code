@@ -30,7 +30,7 @@ instance.interceptors.response.use(
         // 处理401身份验证错误
         if (error.response && error.response.status === 401) {
             console.log('响应拦截器-错误-401')
-            router.push('/login')
+            router.push('/login')   // 跳转到登录页面
             localStorage.removeItem('access_token')
         }
         return Promise.reject(error);

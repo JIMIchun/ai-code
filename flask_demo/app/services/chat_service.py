@@ -5,45 +5,43 @@ import json
 import requests
 import PyPDF2
 
-# 模拟缓存对话历史（实际应用中可以用数据库或缓存系统）
+# 模拟缓存对话历史
 conversation_history = []
 pdf_text_cache = None  # PDF 内容缓存
 
+# TODO：历史消息持久化
 
 # 与模型进行对话,user_input:用户输入的文本str
 def chat_with_model(user_input):
-    # 加载 PDF 内容
-    pdf_path =  os.path.join(os.path.dirname(__file__), "../assets/knowledge.pdf")
-    pdf_text = load_default_pdf_content(pdf_path)
+    try:
+        # 加载 PDF 内容
+        pdf_path =  os.path.join(os.path.dirname(__file__), "../assets/knowledge.pdf")
+        pdf_text = load_default_pdf_content(pdf_path)
 
-    # 清空对话历史（确保每次请求都是从新的上下文开始）
-    conversation_history.clear()
+        # 清空对话历史（确保每次请求都是从新的上下文开始）
+        conversation_history.clear()
 
-    # TODO：添加系统身份设定和参考资料
-    conversation_history.append(
-        {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
-    )
-    conversation_history.append(
-        {
-            "role": "system",
-            "content": "你是IMRIS所开发的智能医学助手VV，擅长医学诊断和治疗分析。",
-        }
-    )
-    # 添加用户输入和任务描述
-    task_description = f"用户提出了问题：{user_input}。请根据提供的参考资料，作为IMRIS所开发的智能医学助手VV的身份，回答用户的问题。"
-    conversation_history.append({"role": "system", "content": task_description})
-    conversation_history.append({"role": "user", "content": user_input})
-    # 发送消息到模型
-    parsed_response = send_message(conversation_history)
-
-    # 如果没有返回模型响应
-    if parsed_response is None:
-        print("无法获取模型响应")
-        return "无法获取模型响应"
-    
-    assistant_reply = extract_content(parsed_response)
-    conversation_history.append({"role": "assistant", "content": assistant_reply})
-    return assistant_reply
+        # TODO：添加系统身份设定和参考资料
+        conversation_history.append(
+            {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
+        )
+        conversation_history.append(
+            {
+                "role": "system",
+                "content": "你是IMRIS所开发的智能医学助手VV，擅长医学诊断和治疗分析。",
+            }
+        )
+        # 添加用户输入和任务描述
+        task_description = f"用户提出了问题：{user_input}。请根据提供的参考资料，作为IMRIS所开发的智能医学助手VV的身份，回答用户的问题。"
+        conversation_history.append({"role": "system", "content": task_description})
+        conversation_history.append({"role": "user", "content": user_input})
+        # 发送消息到模型
+        parsed_response = send_message(conversation_history)
+        assistant_reply = extract_content(parsed_response)
+        conversation_history.append({"role": "assistant", "content": assistant_reply})
+        return assistant_reply
+    except Exception as e:
+        raise e
     
     
 # 加载 PDF 内容（只在首次加载时读取）
@@ -65,7 +63,7 @@ def load_default_pdf_content(pdf_path):
     return pdf_text_cache
 
 
-# 与模型进行对话
+# 向模型发送消息
 def send_message(messages):
     # url = "http://localhost:11434/api/chat"  # 模型的 API 地址
     url = "http://192.168.1.130:11434/api/chat"  # 模型的 API 地址
@@ -77,7 +75,7 @@ def send_message(messages):
         return parsed_data
     except Exception as e:
         print(f"请求异常: {e}")
-        return None
+        raise e
 
 
 # 提取模型响应的内容

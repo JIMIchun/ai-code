@@ -30,7 +30,6 @@
             background-color: #0080ff;
             border-radius: 50%;
             box-shadow: #0080ff 0px 0px 10px 4px;
-            cursor: pointer;
         }
 
         .eye {
@@ -104,17 +103,17 @@
             }
 
             25% {
-                transform: translateY(10px);
+                transform: translateY(20px);
                 height: 30px;
             }
 
             50% {
-                transform: translate(-10px, 10px);
+                transform: translate(-10px, 20px);
                 height: 30px;
             }
 
             75% {
-                transform: translate(10px, 10px);
+                transform: translate(10px, 20px);
                 height: 30px;
             }
         }
@@ -140,8 +139,37 @@
             height: 25px;
         }
 
-        #transcription {
-            margin-top: 20px;
+        .input-bar {
+            width: 50%;
+            height: 70px;
+            border-radius: 5px;
+            margin: 10px;
+            background-color: #ffffff;
+            padding: 10px;
+        }
+
+        .input-bar>textarea {
+            border: none;
+            width: 100%;
+            height: calc(100% - 20px);
+            border-radius: 5px;
+            resize: none;
+            padding: 0;
+        }
+
+        .input-bar>textarea:focus-visible {
+            outline: none;
+        }
+
+        .input-bar>.icons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #microphone,
+        #send {
+            width: 20px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -162,15 +190,24 @@
     </div>
     <div id="desc-container"></div>
 
-    <button id="recordButton">开始录音</button>
-    <div id="transcription"></div>
+    <div class="input-bar">
+        <textarea placeholder="请输入内容..."></textarea>
+        <div class="icons">
+            <img id="microphone" src="{{ url_for('static', filename='microphone.svg') }}" title="语音输入" />
+            <img id="send" src="{{ url_for('static', filename='send.svg') }}" title="发送" />
+        </div>
+    </div>
+
+
 
     <script>
         window.onload = function () {
             blinkEyesNums(2);
-            displayText('点击[开始录音]，与我对话吧！');
+            displayText('点击[麦克风]，与我对话吧！');
         };
         const eyes = document.querySelectorAll('.eye');
+        const waveDiv = document.querySelector('.wave-container')
+        const textarea = document.querySelector('.input-bar>textarea');
 
         // 眨眼次数
         const blinkEyesNums = (num = 1) => {
@@ -237,14 +274,13 @@
                 } else {
                     clearInterval(textInterval);
                 }
-            }, 80); // 每个字符显示的间隔时间
+            }, 30); // 每个字符显示的间隔时间
         }
 
         // 录音及转文字
         let isRecording = false;
-        const recordButton = document.getElementById('recordButton');
-        const transcriptionDiv = document.getElementById('transcription');
-        const waveDiv = document.querySelector('.wave-container')
+        const recordButton = document.getElementById('microphone');  // 录音按钮
+        const sendButton = document.getElementById('send');   // 发送按钮
         let recordText = '';
 
         recordButton.addEventListener('click', () => {
@@ -299,7 +335,9 @@
                 .then(data => {
                     if (data.status === 'success') {
                         recordText = data.result.text;
-                        transcriptionDiv.textContent = recordText.length > 0 ? recordText : '未检测到语音...';
+                        if (recordText.length > 0) {
+                            textarea.value = recordText;
+                        }
                         displayText(recordText.length > 0 ? '识别完成...' : '没听清楚，请再说一遍...');
                         lookDownEyes();
                     }
@@ -308,6 +346,19 @@
                     console.error('Error:', error);
                 });
         }
+
+
+        sendButton.addEventListener('click', () => {
+            if (textarea.value.length > 0) {
+                // 调用后端接口，发送文字
+            }
+            else {
+                displayText('输入为空，请重新输入...');
+                lookDownEyes();
+            }
+        });
+
+
     </script>
 </body>
 

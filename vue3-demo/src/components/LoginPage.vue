@@ -73,7 +73,7 @@ const handleLogin = () => {
                     ElMessage.success('登录成功')
                     // 记录token, 写入localStorage, 在axios请求头中添加token
                     localStorage.setItem('access_token', response.data.access_token)
-                    router.push('/chat')
+                    router.push('/main')
                 } else {
                     ElMessage.error(response.data.message || '登录失败')
                 }

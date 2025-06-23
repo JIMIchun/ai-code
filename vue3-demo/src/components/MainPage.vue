@@ -41,72 +41,138 @@
             <!-- 侧边栏 -->
             <el-aside class="sidebar" width="300px">
                 <el-card class="box-card">
-                    <!-- 选择患者 -->
-                    <el-select v-model="selectPatientId" filterable placeholder="选择账号" style="width: 100%">
-                        <template #prefix>
-                            <el-icon>
-                                <Search />
-                            </el-icon>
-                        </template>
-                        <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name"
-                            :value="item.patient_id" />
-                    </el-select>
-                    <el-card class="patient-info-card">
-                        <div class="avatar">{{ selectPatientInfo.name?.slice(0,1)  }}</div>
-                        <div class="patient-info">
-                            <div class="patient-name">{{ selectPatientInfo.name}}</div>
-                            <div class="lastest-case">
-                                <el-icon><Clock /></el-icon>
-                                最近诊断：{{ casesTimeline[0]?.treatment }}
+                    <div class="top-info" style="padding: 10px;">
+                        <!-- 选择患者 -->
+                        <el-select v-model="selectPatientId" filterable placeholder="选择账号" style="width: 100%">
+                            <template #prefix>
+                                <el-icon>
+                                    <Search />
+                                </el-icon>
+                            </template>
+                            <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name"
+                                :value="item.patient_id" />
+                        </el-select>
+                        <!-- 患者信息 -->
+                        <el-card class="patient-info-card">
+                            <div class="avatar">{{ selectPatientInfo.name?.slice(0, 1) }}</div>
+                            <div class="patient-info">
+                                <div class="patient-name">{{ selectPatientInfo.name }}</div>
+                                <div class="lastest-case">
+                                    <el-icon>
+                                        <Clock />
+                                    </el-icon>
+                                    最近诊断：{{ casesTimeline[0]?.treatment }}
+                                </div>
                             </div>
-                        </div>
-                    </el-card>
-                    <div class="cases-timeline">
-                        <div class="cardcon-title">
-                            <img src="../assets/折线.png" style="margin-right: 5px;">病历时间轴
-                        </div>
-                        <el-timeline style="margin: 10px 0; padding-left: 20px;">
-                            <el-timeline-item v-for="(cases, index) in casesTimeline" :key="index"
-                                :timestamp="cases.case_date">
-                                {{ cases.treatment }}
-                            </el-timeline-item>
-                        </el-timeline>
+                        </el-card>
+                        <el-button class="new-session-button" @click="handleNewSession">
+                            <div style="display: flex; align-items: center; column-gap: 10px;">
+                                <img src="../assets/new-session.png" />
+                                <span>新建会话</span>
+                            </div>
+                        </el-button>
                     </div>
-                    <div class="key-quota">
-                        <div class="cardcon-title">
-                            <img src="../assets/grid.png" style="margin-right: 5px;">关键指标
-                        </div>
-                        <div ref="chartRef" style="width: 100%; height: 200px;"></div>
-                    </div>
+                    <el-collapse v-model="activeNames">
+                        <el-collapse-item name="1" class="cases-timeline">
+                            <template #title>
+                                <el-icon style="font-size: 20px; margin-right: 5px;">
+                                    <ChatLineSquare />
+                                </el-icon>
+                                会话列表
+                            </template>
+                            <div class="session-list">
+                                <div v-for="(session, index) in sessionList" :id="session.session_id"
+                                    :class="'session-item ' + (selectSessionId === session.session_id ? 'active' : '')"
+                                    :title="session.title" @click="changeCurrentSession($event, session)"
+                                    @mouseenter="sessionMouseEnter" @mouseleave="sessionMouseLeave">
+                                    <div class="session-title">{{ session.title }}</div>
+                                    <div class="session-operator" @click.stop="clickOperator"
+                                        v-click-outside="onClickOutside">
+                                        <el-icon>
+                                            <MoreFilled />
+                                        </el-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-collapse-item>
+                        <el-collapse-item name="2" class="cases-timeline">
+                            <template #title>
+                                <div class="cardcon-title">
+                                    <img src="../assets/折线.png" style="margin-right: 5px;">病历时间轴
+                                </div>
+                            </template>
+                            <el-timeline style="margin: 10px 0; padding-left: 20px;">
+                                <el-timeline-item v-for="(cases, index) in casesTimeline" :key="index"
+                                    :timestamp="cases.case_date" color="#30979f">
+                                    {{ cases.treatment }}
+                                </el-timeline-item>
+                            </el-timeline>
+                        </el-collapse-item>
+                        <el-collapse-item name="3" class="key-quota">
+                            <template #title>
+                                <div class="cardcon-title">
+                                    <img src="../assets/grid.png" style="margin-right: 5px;">关键指标
+                                </div>
+                            </template>
+                            <div ref="chartRef" style="width: 100%; height: 200px;"></div>
+                        </el-collapse-item>
+                    </el-collapse>
                 </el-card>
             </el-aside>
+            <!-- 会话操作框 -->
+            <el-popover ref="popoverRef" placement="bottom-end" trigger="click" virtual-triggering
+                :virtual-ref="virtualRef">
+                <div class="pop-content">
+                    <div class="rename-session" @click="renameSession">
+                        <el-icon>
+                            <EditPen />
+                        </el-icon>
+                        <span>重命名</span>
+                    </div>
+                    <div class="delete-session" @click="deleteSession">
+                        <el-icon>
+                            <Delete />
+                        </el-icon>
+                        <span>删除</span>
+                    </div>
+                </div>
+            </el-popover>
             <el-main>
                 <!-- 主要内容区域 -->
-                <router-view @send-message="sendMessage"></router-view>
+                <!-- <router-view></router-view> -->
+                <ChatPage :selectSessionId="selectSessionId" :selectPatientId="selectPatientId"
+                    @updateSessionTitle="querysessionList">
+                </ChatPage>
             </el-main>
         </el-container>
     </el-container>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, unref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getCurrentInstance } from 'vue';
 import * as echarts from 'echarts';
-import { ElMessageBox } from 'element-plus';
+import { ElMessageBox, ElMessage, ClickOutside as vClickOutside } from 'element-plus';
+import ChatPage from './ChatPage.vue';
 
 const { proxy } = getCurrentInstance();   //获取上下文
 
 const router = useRouter();
 
-// const isShowSidebar = ref(false);
-const userInfo = ref({});
-const selectPatientId = ref('');
-const selectPatientInfo = ref({});
-const patientsList = ref([]);
-const accountList = ref([]);
-const casesTimeline = ref([]);
-const chartRef = ref(null);
+const userInfo = ref({});  // 用户信息
+const selectPatientId = ref('');  // 选择的患者ID
+const selectPatientInfo = ref({});  // 选择的患者信息
+const patientsList = ref([]);  // 当前用户下所有患者列表
+const accountList = ref([]);  // 所有患者数据
+const sessionList = ref([]);  // 选择患者会话列表
+const selectSessionId = ref(null);  // 选择的会话ID
+const casesTimeline = ref([]);  // 选择患者病历时间轴
+const chartRef = ref(null);   // 关键指标图表
+const activeNames = ref(['1', '2', '3']);  // 侧边栏折叠面板
+const popoverRef = ref();  // 会话操作弹出框
+const virtualRef = ref();  // 虚拟触发器
+const popVisiable = ref(false);  // 会话操作弹出框显示状态
 let chart = null;
 
 onMounted(() => {
@@ -117,21 +183,27 @@ onMounted(() => {
 
 watch(selectPatientId, () => {
     selectPatientInfo.value = patientsList.value.find(item => item.patient_id === selectPatientId.value);
+    querysessionList();
     queryPatientTimeline();
     queryPatientQuota();
 });
+
+const onClickOutside = () => {
+    unref(popoverRef).popperRef?.delayHide?.()
+    popVisiable.value = false;
+    // const operators = document.getElementsByClassName('session-operator');
+    // for (let i = 0; i < operators.length; i++) {
+    //     if (operators[i].classList.contains('active')) {
+    //         operators[i].classList.remove('active');
+    //     }
+    // }
+}
 
 const initData = async () => {
     await getUserInfo();  // 获取用户信息
     queryPatientsByUserId();
     queryAllPatientData();
 }
-
-
-const sendMessage = (params) => {
-    console.log('Send message:', params);
-    router.push({ path: '/chat', query: params });
-};
 
 const getUserInfo = async () => {
     try {
@@ -164,6 +236,91 @@ const queryAllPatientData = async () => {
             console.log(err);
         });
 }
+// 查询选择患者会话列表
+const querysessionList = async (isInit = true) => {
+    const patientId = selectPatientId.value;
+    proxy.$axios.get(`/get_sessions/${patientId}`).then(res => {
+        if (res.status === 200) {
+            sessionList.value = res.data;
+            if (isInit) {
+                selectSessionId.value = sessionList.value[0].session_id;
+            }
+            console.log('Patient sessions:', res.data)
+        }
+    })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+// 新建会话
+const handleNewSession = () => {
+    proxy.$axios.post('/new_session', { patient_id: selectPatientId.value, title: '未命名新会话' }).then(res => {
+        if (res.status === 201) {
+            querysessionList();
+        }
+    })
+}
+
+// 切换当前会话
+const changeCurrentSession = (event, session) => {
+    selectSessionId.value = session.session_id;
+}
+
+// 重命名
+const renameSession = () => {
+    let session_div = virtualRef.value.parentElement;
+    ElMessageBox.prompt('', '修改标题', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        inputValue: session_div.getElementsByClassName('session-title')[0].innerText,
+        inputPattern: /^\S+$/,
+        inputErrorMessage: '标题不能为空',
+    })
+        .then(({ value }) => {
+            proxy.$axios.post('/update_session_title', { session_id: session_div.id, title: value }).then(res => {
+                if (res.status === 200) {
+                    console.log('修改会话标题：', value);
+                    querysessionList(false);
+                }
+            })
+        })
+        .catch(() => {
+            console.log('取消重命名');
+        })
+        .finally(() => {
+            virtualRef.value.classList.remove('active');
+        })
+}
+
+const deleteSession = () => {
+    let session_div = virtualRef.value.parentElement;
+    ElMessageBox.confirm(
+        '确定要删除该会话吗?',
+        '',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(() => {
+            proxy.$axios.delete('/delete_session/' + session_div.id).then(res => {
+                if (res.status === 200) {
+                    console.log('删除会话成功');
+                    querysessionList(session_div.id == selectSessionId.value ? true : false);
+                }
+            })
+        })
+        .catch(() => {
+            console.log('取消删除');
+        })
+        .finally(() => {
+            virtualRef.value.classList.remove('active');
+
+        })
+}
+
 
 // 查询患者病历时间轴
 const queryPatientTimeline = async () => {
@@ -194,13 +351,14 @@ const queryPatientQuota = async () => {
  * @param quatoData [] 关键指标数据列表
  */
 const initChart = (quatoData) => {
+    const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
     const option = {
         tooltip: {
             trigger: 'axis'
         },
         grid: {  // 控制图表与边缘的距离
-            top: 50,
-            bottom: 40,
+            top: 40,
+            bottom: 30,
             left: 30,
             right: 40
         },
@@ -228,6 +386,9 @@ const initChart = (quatoData) => {
             {
                 data: quatoData.map(item => Number(item.ceal_level)),
                 type: 'line',
+                itemStyle: {
+                    color: lineColor,  // 将折线颜色改为红色
+                },
                 label: {
                     show: true,
                     position: "bottom"
@@ -257,6 +418,27 @@ const handleLogout = () => {
 };
 
 
+const sessionMouseEnter = (event) => {
+    let ele = event.currentTarget.getElementsByClassName('session-operator')[0];
+    ele.classList.add('active');
+    if (!popVisiable.value) {  // 保持已显示的popover不动
+        virtualRef.value = ele;
+    }
+
+}
+
+const sessionMouseLeave = (event) => {
+    let ele = event.currentTarget.getElementsByClassName('session-operator')[0];
+    if (!popVisiable.value) {
+        ele.classList.remove('active');
+    }
+
+}
+
+const clickOperator = (event) => {
+    event.currentTarget.classList.add('active');
+    popVisiable.value = true;
+}
 </script>
 
 <style scoped>
@@ -284,8 +466,6 @@ const handleLogout = () => {
 }
 
 .main-page .sidebar {
-    /* background: #f8f8f8;
-    border-radius: 0 10px 10px 0; */
     padding: 10px;
 }
 
@@ -294,8 +474,9 @@ const handleLogout = () => {
     border: none;
 }
 
+
 .el-card {
-    color: #1A2B3C;
+    color: var(--font-color);
     text-align: left;
 }
 
@@ -310,6 +491,11 @@ const handleLogout = () => {
     padding: 10px;
 }
 
+:deep(.box-card>.el-card__body) {
+    height: 100%;
+    padding: 0;
+}
+
 .sidebar .cardcon-title {
     display: flex;
     align-items: center;
@@ -321,12 +507,12 @@ const handleLogout = () => {
     padding: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: #0097A7;
+    color: var(--primary-color);
 }
 
 :global(.main-page .button:hover) {
-    /* background-color: #efefef; */
-    background-color: #e1f2f5;
+    /* background-color: #e1f2f5; */
+    background-color: var(--button-hover-color);
 }
 
 header.el-header {
@@ -346,8 +532,7 @@ header.el-header {
 }
 
 .doc-image {
-    /* background-color: #79c1cf; */
-    background-color: #0097A7;
+    background-color: var(--primary-color);
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -362,28 +547,49 @@ header.el-header {
 }
 
 .user-info-card .el-button:hover {
-    color: #0097A7;
-    border-color: #0097A7;
-    background: #0097a71a;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: var(--button-hover-color);
 }
 
 .patient-info-card {
     margin: 10px 0;
     height: 100px;
 }
-:deep(.patient-info-card>.el-card__body){
+
+:deep(.patient-info-card>.el-card__body) {
     height: 80px;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     column-gap: 10px;
-    background: #0097a547;
+    background: var(--bkg-color);
 }
 
-.patient-info-card .avatar{
+.el-collapse {
+    height: calc(100% - 215px);
+    padding: 0 10px;
+    border: none;
+    overflow: auto;
+}
+
+:deep(.el-collapse-item__content) {
+    padding: 0;
+}
+
+:deep(.el-collapse-item>button) {
+    font-size: 17px;
+    border: none;
+}
+
+:deep(.el-collapse-item__wrap) {
+    border: none;
+}
+
+.patient-info-card .avatar {
     width: 50px;
     height: 50px;
-    background-color: #0097A7;
+    background-color: var(--primary-color);
     border-radius: 10px;
     color: #ffffff;
     font-size: 40px;
@@ -391,24 +597,119 @@ header.el-header {
     font-weight: bold;
     font-style: italic;
 }
+
 .patient-info-card .patient-info {
     flex: 1;
 }
+
 .patient-name {
     font-weight: bold;
     font-size: 18px;
 }
+
 .lastest-case {
     font-size: 14px;
 }
 
+.session-list {
+    padding-left: 20px;
+    font-size: 15px;
+}
+
+.session-item.active {
+    background: var(--bkg-color);
+}
+
+.session-item {
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.session-item:not(.active):hover {
+    background-color: var(--button-hover-color);
+}
+
+.session-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.session-operator {
+    height: 20px;
+    width: 20px;
+    border-radius: 5px;
+    text-align: center;
+    color: #7f7f7f;
+    display: none;
+}
+
+.session-operator.active {
+    display: block;
+}
+
+.session-operator:hover {
+    background: var(--button-hover-color);
+}
+
+.pop-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.pop-content>div {
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    cursor: pointer;
+}
+
+.pop-content>div:hover {
+    background: var(--button-hover-color);
+}
+
+
+.new-session-button {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.new-session-button:hover {
+    background-color: var(--button-hover-color);
+    border-color: var(--button-shadow-color);
+    color: var(--primary-color);
+    box-shadow: 1px 1px 4px 0px var(--button-shadow-color);
+}
+
+:deep(.box-card .el-timeline-item__tail) {
+    border-left: 2px solid var(--primary-color);
+}
+
+
+
+
 /* 滚动条样式 */
 :deep(*::-webkit-scrollbar) {
-    width: 4px;
+    width: 5px;
 }
 
 :deep(*::-webkit-scrollbar-thumb) {
-    background: #ffffff;
+    /* background: #0c7f8acf; */
+    background-color: var(--primary-color);
     border-radius: 4px;
 }
 

@@ -78,17 +78,6 @@ def get_user():
         return jsonify({"error": str(e)}), 500
 
 
-# # 退出登录
-# @user_bp.route("/logout", methods=["POST"])
-# @jwt_required()
-# def logout():
-#     try:
-#         # 获取当前token并将其加入黑名单
-#         jti = get_jwt()["jti"]
-#         return jsonify({"msg": "退出登录成功"}), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
 
 # @user_bp.route('/protected', methods=['GET'])
 # @jwt_required()

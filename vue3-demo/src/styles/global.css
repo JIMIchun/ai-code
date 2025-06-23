@@ -1,0 +1,9 @@
+:root {
+    --primary-color: #0097A7;
+    --bkg-color: #bfebed;
+    --button-hover-color: #e8f6f9;
+    --button-shadow-color: #30979f85;
+    --font-color: #303133;
+}
+
+/* 使用 document.documentElement.style.setProperty('--primary-color', ***)修改变量值 */

@@ -8,7 +8,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import MetaData
 from app.config import Config
 from flask_cors import CORS
 
@@ -34,6 +33,7 @@ def create_app(config_class=Config):
     from app.routes.cea_routes import cea_bp
     from app.routes.user_routes import user_bp
     from app.routes.chat_routes import chat_bp
+    from app.routes.session_routes import session_bp
     from app.routes.voice_routes import voice_bp
 
     app.register_blueprint(patient_bp, url_prefix="/")
@@ -42,6 +42,7 @@ def create_app(config_class=Config):
     app.register_blueprint(chat_bp, url_prefix="/")
     app.register_blueprint(cea_bp, url_prefix="/")
     app.register_blueprint(user_bp, url_prefix="/")
+    app.register_blueprint(session_bp, url_prefix="/")
     app.register_blueprint(voice_bp, url_prefix="/")
     
     from app.voice.voice_input import voice_input_bp

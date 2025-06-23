@@ -43,7 +43,7 @@ def get_user_patients():
         user_id = claims["user_id"]
         # 查询数据库获取用户名下患者信息
         patients = get_patients_by_user(user_id)
-        return jsonify([patient.to_dict() for patient in patients]) 
+        return jsonify([patient.to_dict() for patient in patients]), 200
     
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
