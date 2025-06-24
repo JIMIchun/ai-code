@@ -49,7 +49,7 @@
                                     <Search />
                                 </el-icon>
                             </template>
-                            <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name"
+                            <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name+'('+item.patient_id+')'"
                                 :value="item.patient_id" />
                         </el-select>
                         <!-- 患者信息 -->
@@ -593,9 +593,12 @@ header.el-header {
     border-radius: 10px;
     color: #ffffff;
     font-size: 40px;
-    text-align: center;
+    /* text-align: center; */
     font-weight: bold;
     font-style: italic;
+    line-height: 50px;
+    padding: 3px;
+    box-sizing: border-box;
 }
 
 .patient-info-card .patient-info {

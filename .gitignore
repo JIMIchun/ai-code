@@ -2,3 +2,18 @@
 __pycache__/
 # 忽略 Python 编译文件
 *.py[cod]
+flask_demo/app/assets/基本信息.csv
+flask_demo/app/assets/检查.csv
+flask_demo/app/assets/检验.csv
+flask_demo/app/assets/手术.csv
+flask_demo/app/assets/体征.csv
+flask_demo/app/assets/用药.csv
+flask_demo/app/assets/诊断.csv
+flask_demo/migrations/versions/8b29d656dffd_.py
+flask_demo/migrations/versions/99b070d12734_.py
+flask_demo/migrations/versions/7c47b2ea1415_.py
+flask_demo/migrations/versions/43fc0f08b61b_.py
+flask_demo/migrations/versions/769daff4c6af_.py
+flask_demo/migrations/versions/3609a986729c_.py
+flask_demo/migrations/versions/945997dbb9ef_.py
+flask_demo/migrations/versions/a73d50399c74_.py

@@ -3,6 +3,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required
 from app.services.patient_service import create_patient, get_patient_by_id, get_all_patients, get_patients_by_user
+from datetime import datetime
 
 patient_bp = Blueprint('patient', __name__)
 
@@ -18,7 +19,9 @@ def add_patient():
             gender=data['gender'],
             age=data['age'],
             contact=data['contact'],
-            address=data.get('address', '')
+            address=data.get('address', ''),
+            # 从YY/MM/DD格式字符串中生成日期对象
+            birth_date=datetime.strptime(data['birth_date'], '%Y/%m/%d').date(),
         )
         return jsonify(patient.to_dict()), 201
     except ValueError as e:

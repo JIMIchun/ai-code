@@ -13,14 +13,18 @@ from app import db
 
 
 class Patient(db.Model):
-    patient_id = db.Column(db.Integer, primary_key=True)  # 数据类型为整数，表的主键
+    patient_id = db.Column(db.String(10), primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
     age = db.Column(db.Integer, nullable=False)
-    contact = db.Column(db.String(100), nullable=False)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    address = db.Column(db.String(255))
-    registration_date = db.Column(db.Date, nullable=False)
+    contact = db.Column(db.String(100),default="11111111111", nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), default=1)
+    address = db.Column(db.String(255), nullable=True)
+    registration_date = db.Column(db.String(20), nullable=False)
+    birth_date = db.Column(db.String(10))
+    nationality = db.Column(db.String(100), default="汉族", nullable=True)
+    
+    
 
     # 关联病例表
     # 定义一对多关系：允许通过 patient.cases 访问某个患者的所有病例
@@ -38,5 +42,7 @@ class Patient(db.Model):
             "age": self.age,
             "contact": self.contact,
             "address": self.address,
-            "registration_date": self.registration_date.isoformat(),
+            "registration_date": self.registration_date,
+            "birth_date": self.birth_date,
+            "nationality": self.nationality
         }
