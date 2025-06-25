@@ -22,9 +22,9 @@ def chat_with_model(user_input):
         conversation_history.clear()
 
         # TODO：添加系统身份设定和参考资料
-        conversation_history.append(
-            {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
-        )
+        # conversation_history.append(
+        #     {"role": "system", "content": f"以下是参考资料，请在回答问题时参考这部分内容：\n{pdf_text}"}
+        # )
         conversation_history.append(
             {
                 "role": "system",

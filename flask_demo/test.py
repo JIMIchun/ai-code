@@ -10,56 +10,93 @@ from app.models.physical_sign import PhysicalSign
 from app.models.medication import Medication
 from app.models.diagnosis import Diagnosis
 
+from app.services.query import *
+from app.services.chat_service import send_message
+
 
 def test_db():
     app = create_app()
     with app.app_context():
-        # initPatients()
+        queryAll('926845', 1)
+        
+        # 清空表
+        # MedicalTest.query.delete()
+        # db.session.commit()
         
         # initHospitalRecords()
-        # print("all records:")
-        # for p in HospitalRecord.query.all():
-        #     print(p.to_dict())
+        # print(len(HospitalRecord.query.all()))
         
-        # db.session.query(HospitalRecord).delete()
-        # db.session.commit()
         # initExaminations()
-        # print("all examinations length:")
         # print(len(Examination.query.all()))
         
-        # initMedicalTest()
-        # print("all MedicalTest length:")
-        # print(len(MedicalTest.query.all()))
-        
         # initOperations()
-        # print("all operations length:")
         # print(len(Operation.query.all()))
-        
         # initPhysicalSigns()
-        # print("all PhysicalSigns length:")
         # print(len(PhysicalSign.query.all()))
         
+        # initMedicalTest()
+        # print(len(MedicalTest.query.all()))
         
         # initMedication()
-        # print("all Medication length:")
         # print(len(Medication.query.all()))
         
-        initDiagnosis()
-        print("all Diagnosis length:")
-        print(len(Diagnosis.query.all()))
+        # initDiagnosis()
+        # print(len(Diagnosis.query.all()))
         
-        # initCases()
-        # initKnowledges()
-        # initCEA()
-        # handleDoctor_id()
+
         
-        # 读取数据
-        # readData()
+def queryAll(patient_id, order):
+    patient=get_patient_by_id(patient_id)
+    hospitalRecord=get_hosrecords_by_order_id(order)
+    physicalSigns = get_physical_signs(patient_id, order)
+    examinations = get_examinations(patient_id, order)
+    medicalTests = get_medical_tests(patient_id, order)
+    operations = get_operations(patient_id, order)
+    medications = get_medications(patient_id, order)
+    diagnoses = get_diagnoses(patient_id, order)
+    
+    generate_progress_note(patient, physicalSigns, examinations, medicalTests,diagnoses,medications,operations)
+    
+    # print('患者信息：')
+    # print(patient.to_dict())
+    # print('体征数据：')
+    # print([physign.to_dict() for physign in physicalSigns])
+    # print('检查数据：')
+    # print([exam.to_dict() for exam in examinations])
+    # print('检验数据：') 
+    # print([test.to_dict() for test in medicalTests])
+    # print('手术数据：')
+    # print([op.to_dict() for op in operations])
+    # print('用药数据：')
+    # print([med.to_dict() for med in medications])
+    # print('诊断数据：')
+    # print([dia.to_dict() for dia in diagnoses])
+    
+    
+def generate_progress_note(patient, physicalSigns, examinations, medicalTests,diagnoses,medications,operations): 
+    """ 生成新的病程记录 """ 
+    input_data =f""" 现有患者资料： {patient.to_dict()} 
+        体征数据：{[physign.to_dict() for physign in physicalSigns]}
+        检查结果：{[exam.to_dict() for exam in examinations]}
+        检验数据：{[test.to_dict() for test in medicalTests]}
+        诊断结果：{[dia.to_dict() for dia in diagnoses]}
+        用药记录：{[med.to_dict() for med in medications]}
+        手术记录：{[op.to_dict() for op in operations]}
+        请基于以上信息生成一份完整的病程记录，保持格式规范。 """ 
+    # 发送请求到大模型 
+    try:
+        response = send_message(input_data)
+        return response
+    except:
+        return "模型出错，请稍后再试"
+
+# def optimize_progress_note(progress_note): 
+#     """ 优化 AI 生成的病程记录 """ 
+#     optimized_note = clean_text(progress_note) # 清理冗余信息
+#     optimized_note = improve_sentence_flow(optimized_note) # 使句子更流畅 
+#     optimized_note = format_standardization(optimized_note) # 确保格式符合病历规范 
+#     return optimized_note
         
-        # 清空数据库表
-        # db.session.query(Message).delete()
-        # db.session.query(Session).delete()
-        # db.session.commit()
         
 
 

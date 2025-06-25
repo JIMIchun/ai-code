@@ -4,7 +4,7 @@ from app import db
 # test_id         varchar(20)     检验编号     Y（主键）
 # patient_id      varchar(10)     病人编号     Y 
 # order           int             住院序号     Y
-# test_time       varchar(20)     检验时间     Y
+# test_time       varchar(20)     检验时间     N
 # related_diagnosis    varchar(200)    相关诊断     N
 # specimens       varchar(10)     标本         Y
 # report_item    varchar(50)     报告条目   Y
@@ -17,7 +17,7 @@ class MedicalTest(db.Model):
     test_id = db.Column(db.String(20), primary_key=True)
     patient_id = db.Column(db.String(10), db.ForeignKey('patient.patient_id'), nullable=False)
     order = db.Column(db.Integer, db.ForeignKey('hospital_record.order'), nullable=False)
-    test_time = db.Column(db.String(20), nullable=False)
+    test_time = db.Column(db.String(20))
     related_diagnosis = db.Column(db.String(200))
     specimens = db.Column(db.String(10), nullable=False)
     report_item = db.Column(db.String(20),primary_key=True, nullable=False)

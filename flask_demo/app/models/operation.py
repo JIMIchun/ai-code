@@ -30,7 +30,7 @@ class Operation(db.Model):
         return {
             'operation_id': self.operation_id,
             'patient_id': self.patient_id,
-            'order_id': self.order_id,            
+            'hospital_order': self.hospital_order,            
             'operation_name': self.operation_name,
             'operation_time': self.operation_time,
             'healing_level': self.healing_level,
