@@ -49,8 +49,8 @@
                                     <Search />
                                 </el-icon>
                             </template>
-                            <el-option v-for="item in patientsList" :key="item.patient_id" :label="item.name+'('+item.patient_id+')'"
-                                :value="item.patient_id" />
+                            <el-option v-for="item in patientsList" :key="item.patient_id"
+                                :label="item.name + '(' + item.patient_id + ')'" :value="item.patient_id" />
                         </el-select>
                         <!-- 患者信息 -->
                         <el-card class="patient-info-card">
@@ -81,6 +81,7 @@
                                 会话列表
                             </template>
                             <div class="session-list">
+                                <div v-if="sessionList.length === 0" class="empty-session"> 暂无会话 </div>
                                 <div v-for="(session, index) in sessionList" :id="session.session_id"
                                     :class="'session-item ' + (selectSessionId === session.session_id ? 'active' : '')"
                                     :title="session.title" @click="changeCurrentSession($event, session)"
@@ -617,6 +618,13 @@ header.el-header {
 .session-list {
     padding-left: 20px;
     font-size: 15px;
+}
+
+.empty-session {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
 }
 
 .session-item.active {

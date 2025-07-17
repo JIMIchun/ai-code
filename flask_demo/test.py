@@ -1,5 +1,7 @@
 from app import create_app
 import json
+import os
+import datetime
 
 from app.models.patient import Patient
 from app.models.hospital_record import HospitalRecord
@@ -11,38 +13,13 @@ from app.models.medication import Medication
 from app.models.diagnosis import Diagnosis
 
 from app.services.query import *
-from app.services.chat_service import send_message
+from app.services.chat_service import chat_with_model
 
 
 def test_db():
     app = create_app()
     with app.app_context():
         queryAll('926845', 1)
-        
-        # 清空表
-        # MedicalTest.query.delete()
-        # db.session.commit()
-        
-        # initHospitalRecords()
-        # print(len(HospitalRecord.query.all()))
-        
-        # initExaminations()
-        # print(len(Examination.query.all()))
-        
-        # initOperations()
-        # print(len(Operation.query.all()))
-        # initPhysicalSigns()
-        # print(len(PhysicalSign.query.all()))
-        
-        # initMedicalTest()
-        # print(len(MedicalTest.query.all()))
-        
-        # initMedication()
-        # print(len(Medication.query.all()))
-        
-        # initDiagnosis()
-        # print(len(Diagnosis.query.all()))
-        
 
         
 def queryAll(patient_id, order):
@@ -55,37 +32,50 @@ def queryAll(patient_id, order):
     medications = get_medications(patient_id, order)
     diagnoses = get_diagnoses(patient_id, order)
     
-    generate_progress_note(patient, physicalSigns, examinations, medicalTests,diagnoses,medications,operations)
+    gen_note = generate_progress_note(patient, hospitalRecord, physicalSigns, examinations, medicalTests, diagnoses, medications, operations)
     
-    # print('患者信息：')
-    # print(patient.to_dict())
-    # print('体征数据：')
-    # print([physign.to_dict() for physign in physicalSigns])
-    # print('检查数据：')
-    # print([exam.to_dict() for exam in examinations])
-    # print('检验数据：') 
-    # print([test.to_dict() for test in medicalTests])
-    # print('手术数据：')
-    # print([op.to_dict() for op in operations])
-    # print('用药数据：')
-    # print([med.to_dict() for med in medications])
-    # print('诊断数据：')
-    # print([dia.to_dict() for dia in diagnoses])
+    # 查看/generate_txt/下的文件数量
+    file_list = os.listdir('./generate_txt/')
+    file_num = len(file_list)
+    # 将结果写入/generate_txt/下的病历.txt文件中
+    with open('./generate_txt/病历'+str(file_num+1)+'_'+datetime.now().strftime('%m%d%H%M')+'.md', 'w', encoding='utf-8') as f:
+        f.write(gen_note)
+        f.close()
+
+        
+    
+    # patient_info = '姓名：'+patient.name+',性别：'+patient.gender+',年龄：'+str(patient.age)+',住院次数：'+str(order)
+    # physign_info = '体征数据：'+str([physign.sign_item+'：'+physign.sign_value+'('+physign.sign_unit if physign.sign_unit is not None else '' +');' for physign in physicalSigns])
+    # exam_info = '检查结果：'+str([exam.exam_type+'：'+exam.impression+' 临床诊断：'+exam.clinical_diagnosis  +';' for exam in examinations])
+    # test_info = '检验数据：'+str([test.report_item+'：'+test.result+'('+test.unit if test.unit is not None else '' +');' for test in medicalTests])
+    # diagnosis_info = '诊断结果：'+str([str(dia.diagnosis_order)+'.'+dia.diagnosis_name+','+dia.diagnosis_result+','+dia.diagnosis_date +';' for dia in diagnoses])
+    # medication_info = '用药记录：'+str([med.medication_name+'：'+med.dosage+' '+med.dosage_unit+'，'+med.usage+'，'+med.start_date+'-'+med.end_date+'，'+med.frequency if med.frequency is not None else '' +';' for med in medications])
+    # operation_info = '手术记录：'+str([str(op.operation_order)+'：' +op.operation_name+'，'+op.operation_time+';' for op in operations])
+    
+    # input = patient_info +'\n'+ physign_info +'\n'+ exam_info +'\n'+ test_info +'\n'+ diagnosis_info +'\n'+ medication_info +'\n'+ operation_info
+    # print(input)
     
     
-def generate_progress_note(patient, physicalSigns, examinations, medicalTests,diagnoses,medications,operations): 
+def generate_progress_note(patient, hospitalRecord, physicalSigns, examinations, medicalTests, diagnoses, medications, operations): 
     """ 生成新的病程记录 """ 
-    input_data =f""" 现有患者资料： {patient.to_dict()} 
+    input_data =f""" 现有患者信息： {patient.to_dict()} 
+        住院记录：{hospitalRecord.to_dict()}  
         体征数据：{[physign.to_dict() for physign in physicalSigns]}
         检查结果：{[exam.to_dict() for exam in examinations]}
         检验数据：{[test.to_dict() for test in medicalTests]}
         诊断结果：{[dia.to_dict() for dia in diagnoses]}
         用药记录：{[med.to_dict() for med in medications]}
         手术记录：{[op.to_dict() for op in operations]}
-        请基于以上信息生成一份完整的病程记录，保持格式规范。 """ 
+        请严格基于以上信息生成一份完整的住院病程记录，保持格式规范。 格式如下：
+        首先给出患者的基本信息和本次住院的基本情况，下面用一条横线表示分隔，
+        然后依次记录主诉、现病史、既往史、个人史、婚育史、家族史，下面用横线分隔，
+        然后依次记录体格检查、专科检查、辅助检查的内容，并注明时间、检查项目、检查结果、诊断结果、用药情况、手术情况等，
+        最后给出智能助手建议，提醒需要注意的事项。      
+        以上内容请严格按照所给数据进行记录，未提供数据的部分可以用“暂无”替代。
+        """ 
     # 发送请求到大模型 
     try:
-        response = send_message(input_data)
+        response = chat_with_model(input_data)
         return response
     except:
         return "模型出错，请稍后再试"
