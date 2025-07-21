@@ -351,6 +351,20 @@
         sendButton.addEventListener('click', () => {
             if (textarea.value.length > 0) {
                 // 调用后端接口，发送文字
+                fetch('/send_input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input_text: textarea.value })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Send input response:', data);
+                        if (data.status === 'success') {
+                            displayText('已发送...');
+                        }
+                    })
             }
             else {
                 displayText('输入为空，请重新输入...');
