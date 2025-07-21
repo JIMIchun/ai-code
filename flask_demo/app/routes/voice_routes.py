@@ -11,7 +11,6 @@ import os
 voice_bp = Blueprint("voice", __name__)
 
 # whisper 控制语音输入/输出
-# vosk 离线语音识别 
 
 # 全局录音控制变量
 recording = False
