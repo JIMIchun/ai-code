@@ -11,3 +11,4 @@ sounddevice==0.5.2
 wavio==0.0.9
 # SpeechRecognition==3.14.3
 openai-whisper==20250625
+pandas==2.3.1

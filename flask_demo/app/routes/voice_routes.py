@@ -71,7 +71,7 @@ def stop_record():
                 wavio.write(f.name, audio_data, 16000, sampwidth=2)
                 
                 model = whisper.load_model("base")
-                result = model.transcribe(f.name)
+                result = model.transcribe(f.name, language="zh", initial_prompt="请使用简体中文转写,并使用标准中文标点符号：，。！？；：")
                     
             os.unlink(f.name)
             return jsonify({'status': 'success', 'result': result})

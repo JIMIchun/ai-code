@@ -34,11 +34,11 @@ def queryAll(patient_id, order):
     
     gen_note = generate_progress_note(patient, hospitalRecord, physicalSigns, examinations, medicalTests, diagnoses, medications, operations)
     
-    # 查看/generate_txt/下的文件数量
-    file_list = os.listdir('./generate_txt/')
+    # 查看/generate_file/下的文件数量
+    file_list = os.listdir('./generate_file/')
     file_num = len(file_list)
-    # 将结果写入/generate_txt/下的病历.txt文件中
-    with open('./generate_txt/病历'+str(file_num+1)+'_'+datetime.now().strftime('%m%d%H%M')+'.md', 'w', encoding='utf-8') as f:
+    # 将结果写入/generate_file/下的病历.md文件中
+    with open('./generate_file/病历'+str(file_num+1)+'_'+datetime.now().strftime('%m%d%H%M')+'.md', 'w', encoding='utf-8') as f:
         f.write(gen_note)
         f.close()
 

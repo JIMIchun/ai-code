@@ -2,6 +2,10 @@
 ```
 pip3 install -r requirements.txt
 ```
+- 使用语音功能需要安装ffmpeg:
+```
+sudo apt-get install ffmpeg   #linux
+```
 
 - 初始化数据库：
 ```
@@ -9,6 +13,7 @@ flask db init
 flask db migrate
 flask db upgrade
 ```
+
 - 运行项目：
 ```
 python3 run.py
