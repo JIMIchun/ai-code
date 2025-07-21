@@ -12,3 +12,5 @@ wavio==0.0.9
 # SpeechRecognition==3.14.3
 openai-whisper==20250625
 pandas==2.3.1
+langchain==0.3.26
+sentence-transformers==5.0.0
